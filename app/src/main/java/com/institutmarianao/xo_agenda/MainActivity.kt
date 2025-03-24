@@ -14,6 +14,8 @@ class MainActivity : AppCompatActivity() {
         val db = Firebase.firestore
         //val db = FirebaseFirestore.getInstance()
 
+
+
     }
 
     //MENSAJE DE PRUEBA GITHUB.
