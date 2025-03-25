@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "484185689718",
+    "project_id": "calendari-todo-list",
+    "storage_bucket": "calendari-todo-list.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484185689718:android:e97a21b4015783b80f9957",
+        "android_client_info": {
+          "package_name": "com.institutmarianao.xo_agenda"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484185689718-5pjv0ssdj91612bbuoglmgjedt2t0r87.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.institutmarianao.xo_agenda",
+            "certificate_hash": "7db881cbfea7d6834cc9ee73562ead62eab2f54f"
+          }
+        },
+        {
+          "client_id": "484185689718-37gjku0om1lg1kbp38oib9jqml1mj6gn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-DrJ2H6XX4EojY74FL4-zWYcgpbdG8w4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484185689718-37gjku0om1lg1kbp38oib9jqml1mj6gn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
