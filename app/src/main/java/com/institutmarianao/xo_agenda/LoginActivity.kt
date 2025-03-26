@@ -6,17 +6,11 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+    /* private lateinit var auth: FirebaseAuth
     private val googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val data = result.data
         val task = GoogleSignIn.getSignedInAccountFromIntent(data)
@@ -27,13 +21,13 @@ class LoginActivity : AppCompatActivity() {
         } catch (e: ApiException) {
             Toast.makeText(this, "Error al iniciar sesión", Toast.LENGTH_SHORT).show()
         }
-    }
+    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        auth = FirebaseAuth.getInstance()
+        /* auth = FirebaseAuth.getInstance()
 
         val googleSignInButton: Button = findViewById(R.id.btnGoogleSignIn)
         googleSignInButton.setOnClickListener { signInWithGoogle() }
@@ -60,8 +54,9 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error en la autenticación", Toast.LENGTH_SHORT).show()
                 }
             }
+    }*/
+
+
     }
-
-
 }
 
