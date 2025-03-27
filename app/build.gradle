@@ -24,29 +24,46 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+
 }
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.1'
-    implementation 'androidx.credentials:credentials:1.5.0'
-    implementation 'androidx.credentials:credentials-play-services-auth:1.5.0'
-    implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
-    implementation 'com.google.android.gms:play-services-auth:20.6.0'
+
+        implementation 'androidx.core:core-ktx:1.8.0'
+        implementation 'androidx.appcompat:appcompat:1.5.0'
+        implementation 'com.google.android.material:material:1.5.0'
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        testImplementation 'junit:junit:4.13.2'
+        androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+        androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+
+
+    // Firebase Authentication (para autenticar usuarios)
+   /* implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'  // Versión estable para versiones antiguas de Android Studio
+
+    // Firebase Firestore (para trabajar con bases de datos Firestore)
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.1'  // Versión estable para versiones antiguas de Android Studio
+
+    // Google Play Services para Google Sign-In
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'  // Versión compatible con versiones antiguas de Android Studio
+
+    // Para usar ActivityResultContracts (para manejo de resultados de Google Sign-In)
+    implementation 'androidx.activity:activity-ktx:1.3.1'  // Compatible con versiones antiguas
+    // Añade las dependencias de AndroidX Lifecycle
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
+    implementation 'androidx.startup:startup-runtime:1.1.1'*/
+
 
 }

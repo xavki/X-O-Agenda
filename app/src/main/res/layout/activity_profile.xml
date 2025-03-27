@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:ignore="ExtraText">
+
+    <!-- Icono Menú (parte superior izquierda) -->
+    <ImageView
+        android:id="@+id/ivMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_menu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Título "Perfil" (centrado verticalmente con el icono de menú) -->
+
+    <!-- Icono Editar (parte superior derecha) -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="140dp"
+        android:text="Perfil"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/ivMenu"
+        app:layout_constraintStart_toEndOf="@+id/ivMenu"
+        app:layout_constraintTop_toTopOf="@+id/ivMenu"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+
+
+    <ImageView
+        android:id="@+id/ivEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_edit"
+        app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.898"
+        app:layout_constraintStart_toEndOf="@+id/tvTitle"
+        app:layout_constraintTop_toTopOf="@+id/tvTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+
+    <EditText
+        android:id="@+id/editname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Jhoanna Doe"
+        app:layout_constraintEnd_toEndOf="@+id/profileImage"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/profileImage"
+        app:layout_constraintTop_toBottomOf="@+id/profileImage" />
+
+    <TextView
+        android:id="@+id/viewname"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:text="Nombre"
+        app:layout_constraintBottom_toTopOf="@+id/editname"
+        app:layout_constraintEnd_toEndOf="@+id/editname"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editname" />
+
+    <EditText
+        android:id="@+id/editemail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name"
+        app:layout_constraintEnd_toEndOf="@+id/editname"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editname"
+        app:layout_constraintTop_toBottomOf="@+id/editname" />
+
+    <TextView
+        android:id="@+id/viewemail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        app:layout_constraintBottom_toTopOf="@+id/editemail"
+        app:layout_constraintEnd_toEndOf="@+id/editemail"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editemail"
+        app:layout_constraintTop_toBottomOf="@+id/editname"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <EditText
+        android:id="@+id/editphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Phone"
+        app:layout_constraintEnd_toEndOf="@+id/editemail"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editemail"
+        app:layout_constraintTop_toBottomOf="@+id/editemail" />
+
+    <TextView
+        android:id="@+id/viewphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone"
+        app:layout_constraintBottom_toTopOf="@+id/editphone"
+        app:layout_constraintEnd_toEndOf="@+id/editphone"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/editphone" />
+
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="203dp"
+        android:layout_height="175dp"
+        android:layout_marginTop="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+        tools:srcCompat="@tools:sample/avatars" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
