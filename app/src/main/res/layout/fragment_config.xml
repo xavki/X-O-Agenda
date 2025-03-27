@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:ignore="ExtraText">
+
+    <TextView
+        android:id="@+id/txtDeleteAcc"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="Eliminar Cuenta !"
+        android:textColor="#FF0000"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPairGoogle" />
+
+    <View
+        android:id="@+id/lineaGris6"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDeleteAcc" />
+
+    <TextView
+        android:id="@+id/txtCloseS"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="Cerrar Session"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtLang" />
+
+    <View
+        android:id="@+id/lineaGris4"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCloseS" />
+
+    <TextView
+        android:id="@+id/txtLang"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="Idioma : ESPAÑOL "
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtStyle" />
+
+    <View
+        android:id="@+id/lineaGris3"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtLang" />
+
+    <View
+        android:id="@+id/lineaGris2"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtStyle" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#00FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtMenu"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtMenu"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingTop="20dp"
+        android:text="Configuración"
+        android:textAlignment="center"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+        app:layout_constraintStart_toEndOf="@+id/ibtnMenu"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/lineaGris"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#D3D3D3"
+        app:layout_constraintTop_toBottomOf="@id/txtMenu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/ibtnMenu"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#00FFFFFF"
+        app:layout_constraintEnd_toStartOf="@+id/txtMenu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_menu" />
+
+    <TextView
+        android:id="@+id/txtStyle"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="Tema : CLARO"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lineaGris" />
+
+    <TextView
+        android:id="@+id/txtPairGoogle"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="Vincular cuenta de Google"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtCloseS" />
+
+    <View
+        android:id="@+id/lineaGris5"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPairGoogle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
