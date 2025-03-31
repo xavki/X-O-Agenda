@@ -162,7 +162,7 @@
         app:layout_constraintTop_toBottomOf="@+id/editPassword" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/imgEye"
         android:layout_width="41dp"
         android:layout_height="34dp"
         app:layout_constraintBottom_toBottomOf="@+id/editPassword"

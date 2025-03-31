@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.XOAgenda" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#C54B54</item>
+        <item name="colorControlActivated">@color/fontMain</item> <!-- Verde cuando está marcado -->
+
     </style>
 
     <style name="Theme.XOAgenda" parent="Base.Theme.XOAgenda" />

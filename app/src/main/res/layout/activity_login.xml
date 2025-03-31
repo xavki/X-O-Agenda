@@ -107,7 +107,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/btnSingIn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -121,20 +121,20 @@
             app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/cbRemember"
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="50dp"
             android:text="Recuerdame"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button" />
+            app:layout_constraintTop_toBottomOf="@+id/btnSingIn" />
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/btnSingUp"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -143,12 +143,12 @@
             android:backgroundTint="@color/fontMain"
             android:text="Sing Up"
             app:cornerRadius="10dp"
-            app:layout_constraintEnd_toStartOf="@+id/btnGoogleSignIn"
+            app:layout_constraintEnd_toStartOf="@+id/btnGoogle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            app:layout_constraintTop_toBottomOf="@+id/cbRemember" />
 
         <Button
-            android:id="@+id/btnGoogleSignIn"
+            android:id="@+id/btnGoogle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -158,21 +158,21 @@
             android:text="G Google"
             app:cornerRadius="10dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/button4"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            app:layout_constraintStart_toEndOf="@+id/btnSingUp"
+            app:layout_constraintTop_toBottomOf="@+id/cbRemember" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/txtNoPass"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
-            android:layout_marginTop="75dp"
+            android:layout_marginTop="70dp"
             android:layout_marginEnd="50dp"
             android:text="Forgot Password ?"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            app:layout_constraintTop_toBottomOf="@+id/cbRemember" />
 
         <EditText
             android:id="@+id/editTextText2"
@@ -189,7 +189,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/imgEye"
             android:layout_width="39dp"
             android:layout_height="36dp"
             app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"

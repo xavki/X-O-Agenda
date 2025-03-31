@@ -12,12 +12,12 @@
         android:layout_height="60dp"
         android:backgroundTint="#00FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtMenu"
+        app:layout_constraintStart_toEndOf="@+id/txtMenuCal"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_search" />
 
     <TextView
-        android:id="@+id/txtMenu"
+        android:id="@+id/txtMenuCal"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:fontFamily="sans-serif-medium"
@@ -34,50 +34,52 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="#D3D3D3"
-        app:layout_constraintTop_toBottomOf="@id/txtMenu"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtMenuCal" />
 
     <ImageButton
         android:id="@+id/ibtnMenu"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:backgroundTint="#00FFFFFF"
-        app:layout_constraintEnd_toStartOf="@+id/txtMenu"
+        app:layout_constraintEnd_toStartOf="@+id/txtMenuCal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu" />
 
     <CalendarView
-        android:id="@+id/calendarView"
+        android:id="@+id/calendar"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView9"
+        android:background="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/txtDay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lineaGris" />
 
     <ListView
+        android:id="@+id/listAct"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDay" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/txtDay"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:text="TextView"
         android:textColor="@color/fontMain"
         android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@+id/spinner"
+        app:layout_constraintEnd_toStartOf="@+id/spDate"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="439dp" />
 
     <Spinner
-        android:id="@+id/spinner"
+        android:id="@+id/spDate"
         android:layout_width="0dp"
         android:layout_height="40dp"
         app:layout_constraintEnd_toEndOf="parent"
