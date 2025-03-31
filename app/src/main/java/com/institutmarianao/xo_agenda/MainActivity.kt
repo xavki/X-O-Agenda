@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.fragment_profile)
 
         // val db = Firebase.firestore
         //val db = FirebaseFirestore.getInstance()

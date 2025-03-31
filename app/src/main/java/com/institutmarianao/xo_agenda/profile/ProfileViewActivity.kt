@@ -9,6 +9,9 @@ import com.institutmarianao.xo_agenda.R
 class ProfileViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.fragment_profile)
+
+
         //setContentView(R.layout.activity_profile_view)
         // Aquí iría la lógica para mostrar los datos del usuario
     }
