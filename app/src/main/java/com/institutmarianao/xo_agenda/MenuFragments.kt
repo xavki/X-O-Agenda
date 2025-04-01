@@ -13,6 +13,6 @@ class MenuFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflamos el layout del fragmento
-        return inflater.inflate(R.layout.fragment_menu, container, false)
+        return inflater.inflate(R.layout.activity_main, container, false)
     }
 }

@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">X&amp;O-Agenda</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+        <string name="drawer_open">Abrir menú</string>
+        <string name="drawer_close">Cerrar menú</string>
+        <string name="close_menu">Cerrar menú</string>
+
 </resources>

@@ -2,21 +2,18 @@ package com.institutmarianao.xo_agenda
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-
-
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 
 class MainActivity : AppCompatActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_profile)
 
-
-    // val db = Firebase.firestore
-        //val db = FirebaseFirestore.getInstance()
-
-
+        // Cargar el layout sin Toolbar
+        setContentView(R.layout.activity_main)
 
     }
 
-    //MENSAJE DE PRUEBA GITHUB.
 }

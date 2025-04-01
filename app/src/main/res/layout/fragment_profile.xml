@@ -9,16 +9,19 @@
 
     <!-- Icono Menú (parte superior izquierda) -->
     <ImageView
-        android:id="@+id/ivMenu"
+        android:id="@+id/btnOpenMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
     <!-- Título "Perfil" (centrado verticalmente con el icono de menú) -->
 
     <!-- Icono Editar (parte superior derecha) -->
+
+
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -27,13 +30,10 @@
         android:text="Perfil"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/ivMenu"
-        app:layout_constraintStart_toEndOf="@+id/ivMenu"
-        app:layout_constraintTop_toTopOf="@+id/ivMenu"
+        app:layout_constraintBottom_toBottomOf="@+id/btnOpenMenu"
+        app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
+        app:layout_constraintTop_toTopOf="@+id/btnOpenMenu"
         app:layout_constraintVertical_bias="0.0" />
-
-
-
 
     <ImageView
         android:id="@+id/ivEdit"
