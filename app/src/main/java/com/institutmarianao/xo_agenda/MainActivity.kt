@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_profile)
+        setContentView(R.layout.activity_login)
 
         // val db = Firebase.firestore
         //val db = FirebaseFirestore.getInstance()
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         editTextPassword = findViewById(R.id.editTextTextPassword)
 
         btnSingIn.setOnClickListener {
-            setContentView(R.layout.activity_profile)
+            setContentView(R.layout.fragment_profile)
         }
 
         btnSingUp.setOnClickListener {
