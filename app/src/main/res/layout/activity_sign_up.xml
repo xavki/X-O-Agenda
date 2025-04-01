@@ -115,7 +115,7 @@
             app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword2" />
 
         <TextView
-            android:id="@+id/txtNoPass"
+            android:id="@+id/txtBackLogin"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
