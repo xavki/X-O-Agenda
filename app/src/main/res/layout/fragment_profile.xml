@@ -39,6 +39,7 @@
         android:id="@+id/ivEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:contentDescription="Editar perfil"
         android:src="@drawable/ic_edit"
         app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +47,6 @@
         app:layout_constraintStart_toEndOf="@+id/tvTitle"
         app:layout_constraintTop_toTopOf="@+id/tvTitle"
         app:layout_constraintVertical_bias="0.0" />
-
 
 
     <EditText

@@ -1,5 +1,6 @@
 package com.institutmarianao.xo_agenda
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.media.Image
 import android.os.Bundle
@@ -13,6 +14,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 
@@ -28,9 +31,10 @@ class MainActivity : AppCompatActivity() {
     private var isEyeOpen = false
     private lateinit var editTextPassword: EditText
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_profile)
+        setContentView(R.layout.activity_login)
 
         // val db = Firebase.firestore
         //val db = FirebaseFirestore.getInstance()
@@ -46,8 +50,11 @@ class MainActivity : AppCompatActivity() {
         imgEye.setImageResource(R.drawable.ic_eye)
         editTextPassword = findViewById(R.id.editTextTextPassword)
 
+
         btnSingIn.setOnClickListener {
-            setContentView(R.layout.activity_profile)
+            val intent = Intent(this, MenuActivity::class.java)
+            startActivity(intent)
+            finish() // opcional, para cerrar la pantalla de login
         }
 
         btnSingUp.setOnClickListener {
@@ -73,6 +80,9 @@ class MainActivity : AppCompatActivity() {
             isEyeOpen = !isEyeOpen
 
             editTextPassword.setSelection(editTextPassword.text.length)
+
         }
     }
+
+
 }

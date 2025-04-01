@@ -21,8 +21,17 @@ class ProfileFragment : Fragment() {
 
         btnOpenMenu.setOnClickListener {
             // Llama al método público de la actividad para abrir el drawer
-            (activity as? MainActivity)?.openDrawer()
+            (activity as? MenuActivity)?.openDrawer()
         }
+        val btnEdit = view.findViewById<ImageView>(R.id.ivEdit)
+
+        btnEdit.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.container_fragment, EditProfileFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
 
         return view
     }

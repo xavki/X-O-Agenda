@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".HomeActivity"/>
+        <activity android:name=".MenuActivity"/>
         <activity android:name=".LoginActivity"/>
         <activity android:name=".profile.ProfileEditActivity"/>
         <activity android:name=".profile.ProfileViewActivity"/>
