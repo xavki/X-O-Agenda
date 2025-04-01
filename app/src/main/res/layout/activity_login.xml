@@ -205,7 +205,6 @@
                 android:text="G Google"
                 app:cornerRadius="10dp" />
         </LinearLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
