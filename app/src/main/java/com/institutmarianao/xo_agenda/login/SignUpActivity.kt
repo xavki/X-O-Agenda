@@ -1,9 +1,10 @@
-package com.institutmarianao.xo_agenda
+package com.institutmarianao.xo_agenda.login
 
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.institutmarianao.xo_agenda.R
 
 
 class SignUpActivity : AppCompatActivity(){

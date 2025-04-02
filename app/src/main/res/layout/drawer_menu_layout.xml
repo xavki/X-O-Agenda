@@ -5,14 +5,17 @@
     android:layout_width="300dp"
     android:layout_height="match_parent"
     android:layout_gravity="start"
-    >
+    android:background="#777777"
+    android:clickable="true"
+    android:focusable="true">
+
 
     <!-- Todo lo demás queda igual -->
 
     <ImageView
         android:id="@+id/ivClose"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="30dp"
+        android:layout_height="35dp"
         android:layout_margin="16dp"
         android:src="@drawable/ic_cancel"
         app:layout_constraintStart_toStartOf="parent"
@@ -56,56 +59,56 @@
         app:layout_constraintTop_toBottomOf="@id/tvUserName" />
 
     <ImageView
-        android:id="@+id/profileImage"
-        android:layout_width="39dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:id="@+id/profileicon"
+        android:layout_width="52dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="52dp"
         android:src="@drawable/ic_profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvUserEmail" />
 
     <TextView
-        android:id="@+id/textViewPerfil"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/textPerfil"
+        android:layout_width="64dp"
+        android:layout_height="20dp"
         android:layout_marginStart="16dp"
         android:text="Perfil >"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="@id/profileImage"
-        app:layout_constraintStart_toEndOf="@id/profileImage"
-        app:layout_constraintTop_toTopOf="@id/profileImage" />
+        app:layout_constraintBottom_toBottomOf="@id/profileicon"
+        app:layout_constraintStart_toEndOf="@id/profileicon"
+        app:layout_constraintTop_toTopOf="@id/profileicon" />
 
     <ImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="39dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:id="@+id/calendaricon"
+        android:layout_width="54dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="24dp"
         android:src="@drawable/ic_calendar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profileImage" />
+        app:layout_constraintTop_toBottomOf="@id/profileicon" />
 
     <TextView
-        android:id="@+id/textViewCalendario"
+        android:id="@+id/textCalendario"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Calendario >"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="@id/iv_icon"
-        app:layout_constraintStart_toEndOf="@id/iv_icon"
-        app:layout_constraintTop_toTopOf="@id/iv_icon" />
+        app:layout_constraintBottom_toBottomOf="@id/calendaricon"
+        app:layout_constraintStart_toEndOf="@id/calendaricon"
+        app:layout_constraintTop_toTopOf="@id/calendaricon" />
 
     <ImageView
         android:id="@+id/alertas"
-        android:layout_width="39dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="57dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="24dp"
         android:src="@drawable/ic_alert"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_icon" />
+        app:layout_constraintTop_toBottomOf="@id/calendaricon" />
 
     <TextView
         android:id="@+id/textViewAlertas"
@@ -121,8 +124,8 @@
 
     <ImageView
         android:id="@+id/iv_settings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="97dp"
+        android:layout_height="81dp"
         android:layout_marginBottom="40dp"
         android:padding="16dp"
         android:src="@drawable/ic_settings"

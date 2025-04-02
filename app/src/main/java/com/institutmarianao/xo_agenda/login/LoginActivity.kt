@@ -1,11 +1,8 @@
-package com.institutmarianao.xo_agenda
+package com.institutmarianao.xo_agenda.login
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.institutmarianao.xo_agenda.R
 
 
 class LoginActivity : AppCompatActivity() {
