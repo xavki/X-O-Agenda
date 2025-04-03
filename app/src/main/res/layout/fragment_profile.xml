@@ -11,12 +11,21 @@
         tools:ignore="ExtraText">
 
         <!-- Icono Menú (parte superior izquierda) -->
+
+        <View
+            android:id="@+id/lineaGris8"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:background="#D3D3D3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="60dp" />
+
         <ImageView
             android:id="@+id/btnOpenMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:src="@drawable/ic_menu"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -24,24 +33,24 @@
         <!-- Título "Perfil" -->
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:paddingTop="20dp"
             android:text="Perfil"
+            android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/btnOpenMenu" />
+            app:layout_constraintEnd_toStartOf="@+id/ivEdit"
+            app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Icono Editar -->
 
         <!-- Imagen de Perfil -->
         <ImageView
             android:id="@+id/ivEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:contentDescription="Editar perfil"
             android:src="@drawable/ic_edit"
             app:layout_constraintEnd_toEndOf="parent"
@@ -123,5 +132,6 @@
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editemail" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
