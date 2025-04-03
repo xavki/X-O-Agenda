@@ -93,10 +93,10 @@
             android:textColor="@color/fontMain"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+            app:layout_constraintTop_toBottomOf="@+id/loginemail" />
 
         <EditText
-            android:id="@+id/editTextTextPassword"
+            android:id="@+id/loginpassword"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -120,7 +120,7 @@
             app:cornerRadius="10dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+            app:layout_constraintTop_toBottomOf="@+id/loginpassword" />
 
         <CheckBox
             android:id="@+id/cbRemember"
@@ -149,7 +149,7 @@
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <EditText
-            android:id="@+id/editTextText2"
+            android:id="@+id/loginemail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -166,10 +166,10 @@
             android:id="@+id/imgEye"
             android:layout_width="39dp"
             android:layout_height="36dp"
-            app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
-            app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+            app:layout_constraintBottom_toBottomOf="@+id/loginpassword"
+            app:layout_constraintEnd_toEndOf="@+id/loginpassword"
             app:layout_constraintHorizontal_bias="0.956"
-            app:layout_constraintStart_toStartOf="@+id/editTextTextPassword"
+            app:layout_constraintStart_toStartOf="@+id/loginpassword"
             app:layout_constraintTop_toBottomOf="@+id/textView5"
             app:srcCompat="@drawable/ic_eye"
             tools:ignore="MissingConstraints" />
