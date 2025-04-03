@@ -11,160 +11,156 @@
         android:padding="16dp"
         tools:ignore="ExtraText">
 
-    <!-- Icono Menú (parte superior izquierda) -->
-    <ImageView
-        android:id="@+id/btnOpenMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Abrir menú"
-        android:src="@drawable/ic_menu"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <!-- Icono Menú (parte superior izquierda) -->
+        <ImageView
+            android:id="@+id/btnOpenMenu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Abrir menú"
+            android:src="@drawable/ic_menu"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Título "Perfil" (centrado verticalmente con el icono de menú) -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="140dp"
-        android:text="Perfil"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/btnOpenMenu"
-        app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
-        app:layout_constraintTop_toTopOf="@+id/btnOpenMenu"
-        app:layout_constraintVertical_bias="0.0" />
+        <!-- Título "Perfil" (centrado verticalmente con el icono de menú) -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Perfil"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/btnOpenMenu" />
 
 
+        <!-- Label: Nombre -->
+        <ImageView
+            android:id="@+id/profileicon"
+            android:layout_width="132dp"
+            android:layout_height="117dp"
+            android:layout_marginTop="44dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            tools:srcCompat="@tools:sample/avatars" />
 
+        <TextView
+            android:id="@+id/viewname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nombre"
+            app:layout_constraintBottom_toTopOf="@+id/editname"
+            app:layout_constraintEnd_toEndOf="@+id/editname"
+            app:layout_constraintStart_toStartOf="@+id/editname" />
 
-    <!-- Label: Nombre -->
-    <ImageView
-        android:id="@+id/profileicon"
-        android:layout_width="132dp"
-        android:layout_height="117dp"
-        android:layout_marginTop="44dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-        tools:srcCompat="@tools:sample/avatars" />
+        <!-- EditText: Nombre -->
+        <EditText
+            android:id="@+id/editname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Jhoanna Doe"
+            app:layout_constraintEnd_toEndOf="@+id/profileicon"
+            app:layout_constraintStart_toStartOf="@+id/profileicon"
+            app:layout_constraintTop_toBottomOf="@+id/profileicon" />
 
-    <TextView
-        android:id="@+id/viewname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nombre"
-        app:layout_constraintBottom_toTopOf="@+id/editname"
-        app:layout_constraintEnd_toEndOf="@+id/editname"
-        app:layout_constraintStart_toStartOf="@+id/editname" />
+        <!-- Label: Email -->
+        <TextView
+            android:id="@+id/viewemail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            app:layout_constraintBottom_toTopOf="@+id/editemail"
+            app:layout_constraintEnd_toEndOf="@+id/editemail"
+            app:layout_constraintStart_toStartOf="@+id/editemail" />
 
-    <!-- EditText: Nombre -->
-    <EditText
-        android:id="@+id/editname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Jhoanna Doe"
-        app:layout_constraintEnd_toEndOf="@+id/profileicon"
-        app:layout_constraintStart_toStartOf="@+id/profileicon"
-        app:layout_constraintTop_toBottomOf="@+id/profileicon" />
+        <!-- EditText: Email -->
+        <EditText
+            android:id="@+id/editemail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:ems="10"
+            android:inputType="textEmailAddress"
+            android:text="Your Email"
+            app:layout_constraintEnd_toEndOf="@+id/editname"
+            app:layout_constraintStart_toStartOf="@+id/editname"
+            app:layout_constraintTop_toBottomOf="@+id/editname" />
 
-    <!-- Label: Email -->
-    <TextView
-        android:id="@+id/viewemail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Email"
-        app:layout_constraintBottom_toTopOf="@+id/editemail"
-        app:layout_constraintEnd_toEndOf="@+id/editemail"
-        app:layout_constraintStart_toStartOf="@+id/editemail" />
+        <!-- Label: Phone -->
+        <TextView
+            android:id="@+id/viewphone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone"
+            app:layout_constraintBottom_toTopOf="@+id/editphone"
+            app:layout_constraintEnd_toEndOf="@+id/editphone"
+            app:layout_constraintStart_toStartOf="@+id/editphone" />
 
-    <!-- EditText: Email -->
-    <EditText
-        android:id="@+id/editemail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:ems="10"
-        android:inputType="textEmailAddress"
-        android:text="Your Email"
-        app:layout_constraintEnd_toEndOf="@+id/editname"
-        app:layout_constraintStart_toStartOf="@+id/editname"
-        app:layout_constraintTop_toBottomOf="@+id/editname" />
+        <!-- EditText: Phone -->
+        <EditText
+            android:id="@+id/editphone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:ems="10"
+            android:inputType="phone"
+            android:text="Your Phone"
+            app:layout_constraintEnd_toEndOf="@+id/editemail"
+            app:layout_constraintStart_toStartOf="@+id/editemail"
+            app:layout_constraintTop_toBottomOf="@+id/editemail" />
 
-    <!-- Label: Phone -->
-    <TextView
-        android:id="@+id/viewphone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Phone"
-        app:layout_constraintBottom_toTopOf="@+id/editphone"
-        app:layout_constraintEnd_toEndOf="@+id/editphone"
-        app:layout_constraintStart_toStartOf="@+id/editphone" />
+        <!-- Label: Change password -->
+        <TextView
+            android:id="@+id/viewPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Change password"
+            app:layout_constraintBottom_toTopOf="@+id/editPassword"
+            app:layout_constraintEnd_toEndOf="@+id/editPassword"
+            app:layout_constraintStart_toStartOf="@+id/editPassword" />
 
-    <!-- EditText: Phone -->
-    <EditText
-        android:id="@+id/editphone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:ems="10"
-        android:inputType="phone"
-        android:text="Your Phone"
-        app:layout_constraintEnd_toEndOf="@+id/editemail"
-        app:layout_constraintStart_toStartOf="@+id/editemail"
-        app:layout_constraintTop_toBottomOf="@+id/editemail" />
+        <!-- EditText: Contraseña -->
+        <EditText
+            android:id="@+id/editPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:ems="10"
+            android:inputType="textPassword"
+            android:text="Your password"
+            app:layout_constraintEnd_toEndOf="@+id/editphone"
+            app:layout_constraintStart_toStartOf="@+id/editphone"
+            app:layout_constraintTop_toBottomOf="@+id/editphone" />
 
-    <!-- Label: Change password -->
-    <TextView
-        android:id="@+id/viewPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Change password"
-        app:layout_constraintBottom_toTopOf="@+id/editPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editPassword"
-        app:layout_constraintStart_toStartOf="@+id/editPassword" />
+        <!-- Botón Confirmar -->
+        <Button
+            android:id="@+id/btnConfirm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
+            android:backgroundTint="@android:color/holo_red_dark"
+            android:text="Confirm"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editPassword" />
 
-    <!-- EditText: Contraseña -->
-    <EditText
-        android:id="@+id/editPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:ems="10"
-        android:inputType="textPassword"
-        android:text="Your password"
-        app:layout_constraintEnd_toEndOf="@+id/editphone"
-        app:layout_constraintStart_toStartOf="@+id/editphone"
-        app:layout_constraintTop_toBottomOf="@+id/editphone" />
+        <ImageView
+            android:id="@+id/imgEye"
+            android:layout_width="41dp"
+            android:layout_height="34dp"
+            app:layout_constraintBottom_toBottomOf="@+id/editPassword"
+            app:layout_constraintEnd_toEndOf="@+id/editPassword"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/editPassword"
+            app:layout_constraintTop_toBottomOf="@+id/viewPassword"
+            app:srcCompat="@drawable/ic_eye"
+            tools:ignore="MissingConstraints" />
 
-    <!-- Botón Confirmar -->
-    <Button
-        android:id="@+id/btnConfirm"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:backgroundTint="@android:color/holo_red_dark"
-        android:text="Confirm"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editPassword" />
-
-    <ImageView
-        android:id="@+id/imgEye"
-        android:layout_width="41dp"
-        android:layout_height="34dp"
-        app:layout_constraintBottom_toBottomOf="@+id/editPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editPassword"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/editPassword"
-        app:layout_constraintTop_toBottomOf="@+id/viewPassword"
-        app:srcCompat="@drawable/ic_eye"
-        tools:ignore="MissingConstraints" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
