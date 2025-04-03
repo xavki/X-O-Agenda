@@ -105,7 +105,7 @@
         android:textAlignment="center"
         android:textSize="20dp"
         app:layout_constraintEnd_toStartOf="@+id/imageButton3"
-        app:layout_constraintStart_toEndOf="@+id/ibtnMenu"
+        app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
@@ -118,7 +118,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageButton
-        android:id="@+id/ibtnMenu"
+        android:id="@+id/btnOpenMenu"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:backgroundTint="#00FFFFFF"

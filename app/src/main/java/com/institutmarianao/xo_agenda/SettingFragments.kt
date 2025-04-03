@@ -7,12 +7,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
 
-class CalendariFragment : Fragment() {
+class SettingFragments : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_calendar, container, false)
+        val view = inflater.inflate(R.layout.fragment_config, container, false)
 
         // Botón para abrir el menú lateral
         val btnOpenMenu = view.findViewById<ImageView>(R.id.btnOpenMenu)

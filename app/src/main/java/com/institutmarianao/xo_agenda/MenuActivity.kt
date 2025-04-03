@@ -32,7 +32,7 @@ class MenuActivity : AppCompatActivity() {
         ivClose.setOnClickListener {
             drawerLayout.closeDrawer(GravityCompat.START) // Cierra el menú lateral
         }
-        //Texto del perfil
+        //Pestañas de perfil
         val textPerfil: TextView = findViewById(R.id.textPerfil)
         textPerfil.setOnClickListener {
             // Cierra el menú lateral
@@ -44,42 +44,77 @@ class MenuActivity : AppCompatActivity() {
                 .addToBackStack(null)  // Esto es opcional, pero permite volver al fragmento anterior
                 .commit()
         }
-        // Configura la acción para ir al perfil
+
         val profileIcon: ImageView = findViewById(R.id.profileicon)
         profileIcon.setOnClickListener {
-            // Cierra el menú lateral
             drawerLayout.closeDrawer(GravityCompat.START)
 
-            // Navegar al ProfileFragment
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container_fragment, ProfileFragment())
-                .addToBackStack(null)  // Esto es opcional, pero permite volver al fragmento anterior
+                .addToBackStack(null)
                 .commit()
         }
 
+
+        //Pestañas de calendario
         val textCalendario: TextView = findViewById(R.id.textCalendario)
         textCalendario.setOnClickListener {
-            // Cierra el menú lateral
             drawerLayout.closeDrawer(GravityCompat.START)
 
-            // Navegar al ProfileFragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container_fragment, FragmentCalendari())
-                .addToBackStack(null)  // Esto es opcional, pero permite volver al fragmento anterior
+                .replace(R.id.container_fragment, CalendariFragment())
+                .addToBackStack(null)
                 .commit()
         }
+
 
         val calendaricon: ImageView = findViewById(R.id.calendaricon)
         calendaricon.setOnClickListener {
-            // Cierra el menú lateral
             drawerLayout.closeDrawer(GravityCompat.START)
 
-            // Navegar al calendarifragment
             supportFragmentManager.beginTransaction()
-                .replace(R.id.container_fragment, FragmentCalendari())
-                .addToBackStack(null)  // Esto es opcional, pero permite volver al fragmento anterior
+                .replace(R.id.container_fragment, CalendariFragment())
+                .addToBackStack(null)
                 .commit()
         }
+
+
+        //Pestaña de alertas
+        val alertasicon: ImageView = findViewById(R.id.alertasicon)
+        alertasicon.setOnClickListener {
+            drawerLayout.closeDrawer(GravityCompat.START)
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container_fragment, AlertFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+
+        val textAlertas: TextView = findViewById(R.id.textAlertas)
+        textAlertas.setOnClickListener {
+            drawerLayout.closeDrawer(GravityCompat.START)
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container_fragment, AlertFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+
+
+        //Pestaña de ajustes
+        val settingsicon: ImageView = findViewById(R.id.settingsicon)
+        settingsicon.setOnClickListener {
+            drawerLayout.closeDrawer(GravityCompat.START)
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container_fragment, SettingFragments())
+                .addToBackStack(null)
+                .commit()
+        }
+
+
+
     }
 
     // Método público para abrir el menú desde cualquier fragmento
