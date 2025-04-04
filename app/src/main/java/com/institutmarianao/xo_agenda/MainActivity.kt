@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
         imgEye = findViewById(R.id.imgEye)
         imgEye.setImageResource(R.drawable.ic_eye)
-        editTextPassword = findViewById(R.id.editTextTextPassword)
+        editTextPassword = findViewById(R.id.loginpassword)
 
 
         btnSingIn.setOnClickListener {

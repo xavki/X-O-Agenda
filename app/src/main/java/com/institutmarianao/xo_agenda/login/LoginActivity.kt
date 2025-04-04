@@ -6,13 +6,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.auth.FirebaseAuth
+//import com.google.firebase.auth.FirebaseAuth
 import com.institutmarianao.xo_agenda.MainActivity // Cambia esto si tu pantalla principal es otra
 import com.institutmarianao.xo_agenda.R
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var auth: FirebaseAuth
+   /* private lateinit var auth: FirebaseAuth
     private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var signInButton: Button
@@ -53,5 +53,5 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error al iniciar sesión: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
             }
-    }
+    }*/
 }
