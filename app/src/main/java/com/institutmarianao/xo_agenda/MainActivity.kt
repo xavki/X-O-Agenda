@@ -18,6 +18,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import com.institutmarianao.xo_agenda.login.LoginActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,12 +35,12 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        setContentView(R.layout.fragment_profile)
 
         // val db = Firebase.firestore
         //val db = FirebaseFirestore.getInstance()
 
-        // CONFIGURACIÓN BOTONES:
+       /* // CONFIGURACIÓN BOTONES:
         btnSingIn = findViewById(R.id.btnSingIn)
         btnSingUp = findViewById(R.id.btnSingUp)
         btnGoogle = findViewById(R.id.btnGoogle)
@@ -52,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
 
         btnSingIn.setOnClickListener {
-            val intent = Intent(this, MenuActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish() // opcional, para cerrar la pantalla de login
         }
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
 
             editTextPassword.setSelection(editTextPassword.text.length)
 
-        }
+        }*/
     }
 
 

@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.institutmarianao.xo_agenda.MainActivity
 import com.institutmarianao.xo_agenda.MenuActivity
 import com.institutmarianao.xo_agenda.R
+import com.institutmarianao.xo_agenda.profile.ProfileActivity
 
 class LoginActivity : AppCompatActivity() {
 
@@ -46,7 +47,6 @@ class LoginActivity : AppCompatActivity() {
         cbRemember = findViewById(R.id.cbRemember)
         txtNoPass = findViewById(R.id.txtNoPass)
         imgEye = findViewById(R.id.imgEye)
-        imgEye.setImageResource(R.drawable.ic_eye)
         emailEditText = findViewById(R.id.loginemail)  // Inicialización
         //passwordEditText = findViewById(R.id.loginpassword)  // Inicializació
         editTextPassword = findViewById(R.id.loginpassword)  // Inicializació
@@ -97,7 +97,7 @@ class LoginActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     // Login exitoso
-                    val intent = Intent(this, MainActivity::class.java)
+                    val intent = Intent(this, MenuActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                     finish()
@@ -109,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    override fun onStart() {
+   /* override fun onStart() {
         super.onStart()
         // Si el usuario ya está autenticado, lo mandamos directamente a MainActivity
         val currentUser = auth.currentUser
@@ -118,5 +118,5 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
-    }
+    }*/
 }
