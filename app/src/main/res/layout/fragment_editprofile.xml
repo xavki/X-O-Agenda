@@ -54,7 +54,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Nombre"
-            app:layout_constraintBottom_toTopOf="@+id/editname"
             app:layout_constraintEnd_toEndOf="@+id/editname"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/editname"
@@ -64,13 +63,12 @@
             android:id="@+id/editname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:ems="10"
             android:inputType="text"
             android:text="Jhoanna Doe"
-            app:layout_constraintEnd_toEndOf="@+id/profileicon"
-            app:layout_constraintStart_toStartOf="@+id/profileicon"
-            app:layout_constraintTop_toBottomOf="@+id/profileicon" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewname" />
 
         <!-- Label: Email -->
 
@@ -79,23 +77,23 @@
             android:id="@+id/viewemail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="Email"
-            app:layout_constraintBottom_toTopOf="@+id/editemail"
             app:layout_constraintEnd_toEndOf="@+id/editemail"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/editemail" />
+            app:layout_constraintStart_toStartOf="@+id/editemail"
+            app:layout_constraintTop_toBottomOf="@+id/editname" />
 
         <EditText
             android:id="@+id/editemail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:ems="10"
             android:inputType="textEmailAddress"
             android:text="Your Email"
-            app:layout_constraintEnd_toEndOf="@+id/editname"
-            app:layout_constraintStart_toStartOf="@+id/editname"
-            app:layout_constraintTop_toBottomOf="@+id/editname" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewemail" />
 
         <!-- Label: Phone -->
 
@@ -104,23 +102,23 @@
             android:id="@+id/viewphone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="Phone"
-            app:layout_constraintBottom_toTopOf="@+id/editphone"
             app:layout_constraintEnd_toEndOf="@+id/editphone"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/editphone" />
+            app:layout_constraintStart_toStartOf="@+id/editphone"
+            app:layout_constraintTop_toBottomOf="@+id/editemail" />
 
         <EditText
             android:id="@+id/editphone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:ems="10"
             android:inputType="phone"
             android:text="Your Phone"
-            app:layout_constraintEnd_toEndOf="@+id/editemail"
-            app:layout_constraintStart_toStartOf="@+id/editemail"
-            app:layout_constraintTop_toBottomOf="@+id/editemail" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewphone" />
 
         <!-- Label: Change password -->
 
@@ -129,23 +127,23 @@
             android:id="@+id/viewPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:text="Change password"
-            app:layout_constraintBottom_toTopOf="@+id/editPassword"
             app:layout_constraintEnd_toEndOf="@+id/editPassword"
             app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/editPassword" />
+            app:layout_constraintStart_toStartOf="@+id/editPassword"
+            app:layout_constraintTop_toBottomOf="@+id/editphone" />
 
         <EditText
             android:id="@+id/editPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:ems="10"
             android:inputType="textPassword"
             android:text="Your password"
-            app:layout_constraintEnd_toEndOf="@+id/editphone"
-            app:layout_constraintStart_toStartOf="@+id/editphone"
-            app:layout_constraintTop_toBottomOf="@+id/editphone" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/viewPassword" />
 
         <!-- Botón Confirmar -->
         <Button
