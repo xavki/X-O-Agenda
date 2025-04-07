@@ -24,9 +24,13 @@
 
         <ImageView
             android:id="@+id/btnOpenMenu"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:src="@drawable/ic_menu"
+            app:layout_constraintBottom_toTopOf="@+id/lineaGris8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,8 +44,8 @@
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/ivEdit"
-            app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Icono Editar -->
@@ -49,10 +53,14 @@
         <!-- Imagen de Perfil -->
         <ImageView
             android:id="@+id/ivEdit"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:contentDescription="Editar perfil"
             android:src="@drawable/ic_edit"
+            app:layout_constraintBottom_toBottomOf="@+id/tvTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
