@@ -64,6 +64,11 @@ class LoginActivity : AppCompatActivity() {
         txtNoPass.setOnClickListener {
             setContentView(R.layout.activity_recover_pass)
         }
+        cbRemember.setOnCheckedChangeListener { _, isChecked ->
+            val prefs = getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)
+            // Guardamos el valor booleano "REMEMBER_ME" para indicar si el usuario quiere que se recuerde su sesión
+            prefs.edit().putBoolean("REMEMBER_ME", isChecked).apply()
+        }
 
         imgEye.setOnClickListener {
             if (isEyeOpen) {
@@ -109,14 +114,25 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-   /* override fun onStart() {
+   override fun onStart() {
         super.onStart()
-        // Si el usuario ya está autenticado, lo mandamos directamente a MainActivity
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
-    }*/
+       // Accedemos a las mismas SharedPreferences para leer la configuración guardada
+       val prefs = getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)
+       // Obtenemos el valor booleano de "REMEMBER_ME"; si no existe, se toma 'false' como valor predeterminado
+       val rememberMe = prefs.getBoolean("REMEMBER_ME", false)
+
+       // Si el usuario no ha marcado "Recordarme", cerramos sesión.
+       if (!rememberMe) {
+           auth.signOut()
+       }
+
+       // Si ya hay un usuario autenticado (y se recuerda la sesión), redirige a la actividad deseada
+       val currentUser = auth.currentUser
+       if (currentUser != null) {
+           val intent = Intent(this, MenuActivity::class.java)
+           intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+           startActivity(intent)
+           finish()
+       }
+    }
 }
