@@ -147,11 +147,14 @@
             app:layout_constraintTop_toBottomOf="@+id/viewPassword" />
 
         <!-- Botón Confirmar -->
+
         <Button
             android:id="@+id/btnConfirm"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginStart="100dp"
+            android:layout_marginTop="45dp"
+            android:layout_marginEnd="100dp"
             android:backgroundTint="@color/fontMain"
             android:text="Confirm"
             android:textColor="@android:color/white"
@@ -160,7 +163,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editPassword"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintVertical_bias="0.0" />
 
         <ImageView
             android:id="@+id/imgEye"
@@ -187,8 +190,10 @@
 
         <ImageView
             android:id="@+id/btnOpenMenu"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_menu" />
