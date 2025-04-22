@@ -51,9 +51,8 @@
     <CalendarView
         android:id="@+id/calendar"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="300dp"
         android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/txtDay"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lineaGris" />
@@ -71,6 +70,7 @@
         android:id="@+id/txtDay"
         android:layout_width="0dp"
         android:layout_height="40dp"
+        android:layout_marginTop="1dp"
         android:text="TextView"
         android:textColor="@color/fontMain"
         android:textSize="20sp"
