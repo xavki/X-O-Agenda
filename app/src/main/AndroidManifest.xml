@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.XOAgenda"
         tools:targetApi="31">
+
         <activity
             android:name=".login.LoginActivity"
             android:exported="true">
@@ -24,6 +25,14 @@
         <activity android:name=".HomeActivity"/>
         <activity android:name=".MenuActivity"/>
         <activity android:name=".MainActivity"/>
+        <activity
+            android:name=".login.RecoveryActivity"
+            android:label="Account Recovery"
+            android:parentActivityName=".login.LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.LoginActivity" />
+        </activity>
 
     </application>
 
