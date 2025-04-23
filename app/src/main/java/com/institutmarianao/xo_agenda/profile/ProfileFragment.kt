@@ -62,12 +62,12 @@ class ProfileFragment : Fragment() {
         Log.d("ProfileFragment", "UID actual = $uid")
 
         FirebaseFirestore.getInstance()
-            .collection("users")
+            .collection("usuarios")
             .document(uid)
             .get()
             .addOnSuccessListener { doc ->
                 val db = FirebaseFirestore.getInstance()
-                db.collection("users")
+                db.collection("usuarios")
                     .get()
                     .addOnSuccessListener { snap ->
                         Log.d("DEBUG_USERS", "Encontrados ${snap.size()} docs en users/")
