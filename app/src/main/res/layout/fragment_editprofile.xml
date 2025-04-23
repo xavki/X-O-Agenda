@@ -121,61 +121,41 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewphone" />
 
-        <!-- Label: Change password -->
+        <!-- Botón para enviar email de restablecimiento -->
 
-        <!-- EditText: Contraseña -->
         <TextView
-            android:id="@+id/viewPassword"
+            android:id="@+id/viewResetByEmail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Change password"
+            android:text="¿Olvidaste tu contraseña?"
+            app:layout_constraintBottom_toTopOf="@+id/btnSendResetEmail"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.34"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editphone" />
+            app:layout_constraintTop_toBottomOf="@+id/btnConfirm" />
 
-        <EditText
-            android:id="@+id/editPassword"
-            android:layout_width="wrap_content"
+
+        <Button
+            android:id="@+id/btnSendResetEmail"
+            android:layout_width="211dp"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPassword"
-            android:text="Your password"
+            android:layout_marginTop="48dp"
+            android:backgroundTint="@color/fontMain"
+            android:text="Enviar email de restablecimiento"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/viewPassword" />
-
-        <!-- Botón Confirmar -->
+            app:layout_constraintTop_toBottomOf="@+id/btnConfirm" />
 
         <Button
             android:id="@+id/btnConfirm"
-            android:layout_width="0dp"
+            android:layout_width="211dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="100dp"
-            android:layout_marginTop="45dp"
-            android:layout_marginEnd="100dp"
+            android:layout_marginTop="16dp"
             android:backgroundTint="@color/fontMain"
             android:text="Confirm"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editPassword"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <ImageView
-            android:id="@+id/imgEye"
-            android:layout_width="41dp"
-            android:layout_height="34dp"
-            app:layout_constraintBottom_toBottomOf="@+id/editPassword"
-            app:layout_constraintEnd_toEndOf="@+id/editPassword"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="@+id/editPassword"
-            app:layout_constraintTop_toBottomOf="@+id/viewPassword"
-            app:srcCompat="@drawable/ic_eye"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintTop_toBottomOf="@+id/editphone" />
 
         <ImageView
             android:id="@+id/imageView2"
