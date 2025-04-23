@@ -6,15 +6,6 @@
     android:layout_height="match_parent"
     tools:ignore="ExtraText">
 
-    <ImageButton
-        android:id="@+id/imageButton3"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:backgroundTint="#00FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtMenuConf"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <TextView
         android:id="@+id/txtMenuConf"
         android:layout_width="0dp"
@@ -24,8 +15,8 @@
         android:text="Alert"
         android:textAlignment="center"
         android:textSize="20dp"
-        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
-        app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
@@ -37,12 +28,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btnOpenMenu"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:backgroundTint="#00FFFFFF"
-        app:layout_constraintEnd_toStartOf="@+id/txtMenuConf"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/txtMenuConf"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu" />
