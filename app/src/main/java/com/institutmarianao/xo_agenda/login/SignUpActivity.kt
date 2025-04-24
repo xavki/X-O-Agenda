@@ -49,6 +49,7 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
             } else {
                 auth.createUserWithEmailAndPassword(email, password)
+
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
                             // Registro OK → vamos al menú
@@ -67,6 +68,21 @@ class SignUpActivity : AppCompatActivity() {
             }
         }
 
+      /*  val db = FirebaseFirestore.getInstance()
+        val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+        val userData = hashMapOf(
+            "email" to email
+            // "name" to nameEt.text.toString().trim()
+        )
+        db.collection("users")
+            .document(uid)
+            .set(userData)
+            .addOnSuccessListener {
+                // navega a MenuActivity
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error Firestore: ${e.message}", Toast.LENGTH_LONG).show()
+            }*/
 
     }
 
