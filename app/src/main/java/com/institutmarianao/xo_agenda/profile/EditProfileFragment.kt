@@ -1,5 +1,6 @@
 package com.institutmarianao.xo_agenda
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,13 +13,15 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.institutmarianao.xo_agenda.login.RecoveryActivity
+import com.institutmarianao.xo_agenda.profile.ProfileActivity
 
 class EditProfileFragment : Fragment() {
     private lateinit var nameEdit: EditText
     private lateinit var emailEdit: EditText
     private lateinit var phoneEdit: EditText
-    private lateinit var btnSendResetEmail: Button
-
+    private lateinit var SendResetEmail: Button
+    private lateinit var Confirm: Button
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -36,11 +39,20 @@ class EditProfileFragment : Fragment() {
         nameEdit = view.findViewById(R.id.editname)
         emailEdit = view.findViewById(R.id.editemail)
         phoneEdit = view.findViewById(R.id.editphone)
-        btnSendResetEmail  = view.findViewById(R.id.btnSendResetEmail)
+        SendResetEmail  = view.findViewById(R.id.btnSendResetEmail)
+        Confirm = view.findViewById(R.id.btnConfirm)
+
 
         loadProfile()
+
+        Confirm.setOnClickListener {
+            /* val intent = Intent(requireContext(), ProfileFragment::class.java)
+             startActivity(intent)*/
+        }
+
+
         // Enviar email de restablecimiento
-        btnSendResetEmail.setOnClickListener {
+        SendResetEmail.setOnClickListener {
             val email = FirebaseAuth.getInstance().currentUser?.email
             if (email.isNullOrBlank()) {
                 Toast.makeText(requireContext(),

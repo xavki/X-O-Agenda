@@ -54,7 +54,8 @@ class LoginActivity : AppCompatActivity() {
 
 
         btnSingUp.setOnClickListener {
-            setContentView(R.layout.activity_sign_up)
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
         }
 
         btnGoogle.setOnClickListener {
@@ -62,7 +63,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         txtNoPass.setOnClickListener {
-            setContentView(R.layout.activity_recover_pass)
+            val intent = Intent(this, RecoveryActivity::class.java)
+            startActivity(intent)
         }
         cbRemember.setOnCheckedChangeListener { _, isChecked ->
             val prefs = getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)

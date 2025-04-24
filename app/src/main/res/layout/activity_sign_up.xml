@@ -31,7 +31,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/editTextTextPassword"
+            android:id="@+id/anadirpassword"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -45,7 +45,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
         <EditText
-            android:id="@+id/editTextText2"
+            android:id="@+id/anadirmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -60,7 +60,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
         <EditText
-            android:id="@+id/editTextText"
+            android:id="@+id/anadirnombre"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
@@ -84,7 +84,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+            app:layout_constraintTop_toBottomOf="@+id/anadirnombre" />
 
         <TextView
             android:id="@+id/textView5"
@@ -98,7 +98,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+            app:layout_constraintTop_toBottomOf="@+id/anadirmail" />
 
         <CheckBox
             android:id="@+id/cbRemember"
@@ -112,7 +112,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword2" />
+            app:layout_constraintTop_toBottomOf="@+id/anadirpaswordconfim" />
 
         <TextView
             android:id="@+id/txtBackLogin"
@@ -120,6 +120,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
             android:layout_marginEnd="50dp"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="sans-serif-medium"
             android:text="Have an a Account ? Sign In"
             android:textAlignment="center"
@@ -169,10 +171,10 @@
             android:textColor="@color/fontMain"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+            app:layout_constraintTop_toBottomOf="@+id/anadirpassword" />
 
         <EditText
-            android:id="@+id/editTextTextPassword2"
+            android:id="@+id/anadirpaswordconfim"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="50dp"
