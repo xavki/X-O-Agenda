@@ -203,7 +203,7 @@ class SettingFragments : Fragment() {
             builder.setTitle("Confirmar eliminación")
                 .setMessage("¿Seguro que deseas eliminar la cuenta de $userName? Esta acción es irreversible.")
                 .setPositiveButton("Eliminar cuenta") { _, _ ->
-                    //deleteUserAccount()
+                    deleteUserAccount()
                 }
                 .setNegativeButton("Cancelar") { dialog, _ ->
                     dialog.dismiss() // Si el usuario cancela, cierra el diálogo
@@ -213,7 +213,7 @@ class SettingFragments : Fragment() {
     }
 
     // Eliminar la cuenta de Firebase y la base de datos (si se utiliza Firestore)
-    /*private fun deleteUserAccount() {
+    private fun deleteUserAccount() {
         val currentUser = auth.currentUser
         currentUser?.let {
             // Eliminar datos de la base de datos (por ejemplo, Firestore)
@@ -221,7 +221,7 @@ class SettingFragments : Fragment() {
             firestore.collection("users").document(userId).delete()
                 .addOnSuccessListener {
                     // Eliminar la cuenta en Firebase Authentication
-                    it.delete()
+                    currentUser.delete()
                         .addOnSuccessListener {
                             // Después de eliminar la cuenta, redirigir al login
                             val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -248,7 +248,7 @@ class SettingFragments : Fragment() {
             .setMessage(message)
             .setPositiveButton("Aceptar", null)
             .show()
-    }*/
+    }
 }
 
 
