@@ -41,52 +41,95 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         iniciarsession.setOnClickListener {
-            val email = email.text.toString().trim()
-            val password = password.text.toString().trim()
-            val name = nombre.text.toString().trim()  // Obtener el nombre
+            val name = nombre.text.toString().trim()
+            val emailText = email.text.toString().trim()
+            val passwordText = password.text.toString().trim()
+            val confirmPasswordText = confirmpassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty() || name.isEmpty()) {
-                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
-            } else {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            // Registro OK → vamos a la base de datos Firestore
-                            val user = auth.currentUser
-                            val uid = user?.uid ?: return@addOnCompleteListener
+            var isValid = true
+            nombre.error = null
+            email.error = null
+            password.error = null
+           // confirm.error = null
 
-                            // Crear un mapa con los datos del usuario
-                            val userData = hashMapOf(
-                                "nom" to name,
-                                "email" to email
-                            )
 
-                            // Guardar los datos en Firestore
-                            db.collection("usuarios")
-                                .document(uid)
-                                .set(userData)
-                                .addOnSuccessListener {
-                                    // Registro y datos guardados correctamente
-                                    val intent = Intent(this, LoginActivity::class.java)
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                    startActivity(intent)
-                                    finish()
-                                }
-                                .addOnFailureListener { e ->
-                                    // Manejo de error al guardar los datos en Firestore
-                                    Toast.makeText(this, "Error al guardar los datos: ${e.message}", Toast.LENGTH_LONG).show()
-                                }
-
-                        } else {
-                            // Error al registrar usuario
-                            Toast.makeText(
-                                this,
-                                "Error al registrarse: ${task.exception?.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
+            if (name.isEmpty()) {
+                nombre.error = "Introduce tu nombre"
+                nombre.requestFocus()
+                isValid = false
             }
+
+            if (emailText.isEmpty()) {
+                email.error = "Introduce tu email"
+                email.requestFocus()
+                isValid = false
+            }
+            if (passwordText.isEmpty()) {
+                password.error = "Introduce tu contraseña"
+                password.requestFocus()
+                isValid = false
+            }
+            /*if (confirmPasswordText.isEmpty()) {
+                confirm.error = "Introduce tu nombre"
+                confirm.requestFocus()
+                isValid = false
+            }*/
+
+
+
+            if (passwordText != confirmPasswordText) {
+                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (passwordText.length < 6) {
+                Toast.makeText(
+                    this,
+                    "La contraseña debe tener al menos 6 caracteres",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+            if (!isValid) return@setOnClickListener
+
+            auth.createUserWithEmailAndPassword(emailText, passwordText)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
+                        val uid = user?.uid ?: return@addOnCompleteListener
+
+                        val userData = hashMapOf(
+                            "nom" to name,
+                            "email" to emailText
+                        )
+
+                        db.collection("usuarios")
+                            .document(uid)
+                            .set(userData)
+                            .addOnSuccessListener {
+                                val intent = Intent(this, LoginActivity::class.java)
+                                intent.flags =
+                                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                                finish()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Error al guardar los datos: ${e.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "Error al registrarse: ${task.exception?.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
         }
+
     }
 }
