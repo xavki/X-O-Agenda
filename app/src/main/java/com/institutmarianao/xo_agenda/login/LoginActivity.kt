@@ -21,7 +21,8 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var emailEditText: EditText
-   // private lateinit var passwordEditText: EditText
+
+    // private lateinit var passwordEditText: EditText
     private lateinit var btnSingIn: Button
     private lateinit var btnSingUp: Button
     private lateinit var btnGoogle: Button
@@ -52,7 +53,6 @@ class LoginActivity : AppCompatActivity() {
         editTextPassword = findViewById(R.id.loginpassword)  // Inicializació
 
 
-
         btnSingUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
@@ -75,10 +75,12 @@ class LoginActivity : AppCompatActivity() {
         imgEye.setOnClickListener {
             if (isEyeOpen) {
                 imgEye.setImageResource(R.drawable.ic_eye)
-                editTextPassword.transformationMethod = PasswordTransformationMethod.getInstance()  // Ocultar contraseña
+                editTextPassword.transformationMethod =
+                    PasswordTransformationMethod.getInstance()  // Ocultar contraseña
             } else {
                 imgEye.setImageResource(R.drawable.ic_crossed_eye)
-                editTextPassword.transformationMethod = HideReturnsTransformationMethod.getInstance()  // Mostrar contraseña
+                editTextPassword.transformationMethod =
+                    HideReturnsTransformationMethod.getInstance()  // Mostrar contraseña
             }
             isEyeOpen = !isEyeOpen
 
@@ -91,10 +93,25 @@ class LoginActivity : AppCompatActivity() {
             val email = emailEditText.text.toString().trim()
             val password = editTextPassword.text.toString().trim()
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show()
-            } else {
-                loginUser(email, password)
+            var isValid = true
+            emailEditText.error = null
+            editTextPassword.error = null
+
+            // Validar email
+            if (email.isEmpty()) {
+                emailEditText.error = "Introduce tu email"
+                if (isValid) { // Solo damos el foco si no se ha dado antes
+                    emailEditText.requestFocus()
+                }
+                isValid = false
+            }
+
+            if (password.isEmpty()) {
+                editTextPassword.error = "Introduce tu contraseña"
+                if (isValid) {
+                    editTextPassword.requestFocus()
+                }
+                isValid = false
             }
         }
     }
@@ -108,33 +125,49 @@ class LoginActivity : AppCompatActivity() {
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                     finish()
-                } else {
-                    // Aquí muestra el error que obtienes
-                    Toast.makeText(this, "Error al iniciar sesión: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                } else {  // Verificar si existe una excepción en la tarea (por ejemplo, contraseña o email incorrectos)
+                    val errorMessage = task.exception?.message
+                    val errorToShow = when {
+                        errorMessage.isNullOrEmpty() -> "Error desconocido. Intenta de nuevo."
+                        errorMessage.contains(
+                            "password",
+                            ignoreCase = true
+                        ) -> "La contraseña es incorrecta."
+
+                        errorMessage.contains(
+                            "email",
+                            ignoreCase = true
+                        ) -> "El correo electrónico no está registrado."
+
+                        else -> "Error al iniciar sesión: $errorMessage"
+                    }
+
+                    // Muestra el mensaje de error adecuado
+                    Toast.makeText(this, errorToShow, Toast.LENGTH_LONG).show()
                 }
             }
 
     }
 
-   override fun onStart() {
+    override fun onStart() {
         super.onStart()
-       // Accedemos a las mismas SharedPreferences para leer la configuración guardada
-       val prefs = getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)
-       // Obtenemos el valor booleano de "REMEMBER_ME"; si no existe, se toma 'false' como valor predeterminado
-       val rememberMe = prefs.getBoolean("REMEMBER_ME", false)
+        // Accedemos a las mismas SharedPreferences para leer la configuración guardada
+        val prefs = getSharedPreferences("MY_APP_PREFS", MODE_PRIVATE)
+        // Obtenemos el valor booleano de "REMEMBER_ME"; si no existe, se toma 'false' como valor predeterminado
+        val rememberMe = prefs.getBoolean("REMEMBER_ME", false)
 
-       // Si el usuario no ha marcado "Recordarme", cerramos sesión.
-       if (!rememberMe) {
-           auth.signOut()
-       }
+        // Si el usuario no ha marcado "Recordarme", cerramos sesión.
+        if (!rememberMe) {
+            auth.signOut()
+        }
 
-       // Si ya hay un usuario autenticado (y se recuerda la sesión), redirige a la actividad deseada
-       val currentUser = auth.currentUser
-       if (currentUser != null) {
-           val intent = Intent(this, MenuActivity::class.java)
-           intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-           startActivity(intent)
-           finish()
-       }
+        // Si ya hay un usuario autenticado (y se recuerda la sesión), redirige a la actividad deseada
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val intent = Intent(this, MenuActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 }

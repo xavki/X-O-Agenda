@@ -4,5 +4,16 @@
         <string name="drawer_open">Abrir menú</string>
         <string name="drawer_close">Cerrar menú</string>
         <string name="close_menu">Cerrar menú</string>
+        <string name="hello_message">¡Hola! Encantado de verte de nuevo.</string>
+        <string name="sign_in">Iniciar sesión</string>
+        <string name="email">Correo electrónico</string>
+        <string name="agenda">AGENDA</string>
+        <string name="password">Contraseña</string>
+        <string name="sing_in_button">Iniciar sesión</string>
+        <string name="remember_me">Recuérdame</string>
+        <string name="forgot_password">¿Olvidaste la contraseña?</string>
+        <string name="example_email">ejemplo@gmail.com</string>
+        <string name="sing_up_button">Registrarse</string>
+        <string name="google_button">G Google</string>
 
 </resources>

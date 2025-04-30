@@ -1,8 +1,15 @@
 package com.institutmarianao.xo_agenda.login
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.view.View
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -20,6 +27,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var confirmpassword: EditText
     private lateinit var iniciarsession: Button
     private lateinit var db: FirebaseFirestore
+    private lateinit var termino: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +42,41 @@ class SignUpActivity : AppCompatActivity() {
         password = findViewById(R.id.anadirpassword)
         confirmpassword = findViewById(R.id.anadirpaswordconfim)
         iniciarsession = findViewById(R.id.btnSingIn)
+        termino = findViewById(R.id.terminos)
+
+        // Crear un SpannableString para que los términos sean clickeables
+        val termsText = "I agree to the Terms of Service and Privacy Policy."
+        val spannableString = SpannableString(termsText)
+
+        // Establecer los enlaces en los textos de Términos y Política de privacidad
+        val termsStart = termsText.indexOf("Terms of Service")
+        val termsEnd = termsText.indexOf("Privacy Policy") + "Privacy Policy".length
+        val privacyStart = termsText.indexOf("Privacy Policy")
+        val privacyEnd = termsText.length
+        // Crear el enlace para los Términos de Servicio
+                spannableString.setSpan(object : ClickableSpan() {
+                    override fun onClick(widget: View) {
+                        val intent = Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("https://www.tusitio.com/terminos")
+                        )
+                        startActivity(intent)
+                    }
+                }, termsStart, termsEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        // Crear el enlace para la Política de Privacidad
+        spannableString.setSpan(object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                val intent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tusitio.com/privacidad"))
+                startActivity(intent)
+            }
+        }, privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        // Asegurarse de que el texto sea clickeable
+        termino.text = spannableString
+        termino.movementMethod = LinkMovementMethod.getInstance()
+
 
         txtBackLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
@@ -50,7 +93,7 @@ class SignUpActivity : AppCompatActivity() {
             nombre.error = null
             email.error = null
             password.error = null
-           // confirm.error = null
+            confirmpassword.error = null
 
 
             if (name.isEmpty()) {
@@ -68,28 +111,25 @@ class SignUpActivity : AppCompatActivity() {
                 password.error = "Introduce tu contraseña"
                 password.requestFocus()
                 isValid = false
-            }
-            /*if (confirmPasswordText.isEmpty()) {
-                confirm.error = "Introduce tu nombre"
-                confirm.requestFocus()
+            } else if (passwordText.length < 6) {
+                password.error = "La contraseña debe tener al menos 6 caracteres,"
+                password.requestFocus()
                 isValid = false
-            }*/
-
-
-
-            if (passwordText != confirmPasswordText) {
-                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
             }
 
-            if (passwordText.length < 6) {
-                Toast.makeText(
-                    this,
-                    "La contraseña debe tener al menos 6 caracteres",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@setOnClickListener
+            if (confirmPasswordText.isEmpty()) {
+                confirmpassword.error = "Introduce tu contraseña"
+                confirmpassword.requestFocus()
+                isValid = false
+            } else if (confirmPasswordText != passwordText) {
+                confirmpassword.error = "Las contraseñas tienen que ser iguales"
+                confirmpassword.requestFocus()
+                password.error = "Las contraseñas tienen que ser iguales"
+                password.requestFocus()
+                isValid = false
             }
+
+
             if (!isValid) return@setOnClickListener
 
             auth.createUserWithEmailAndPassword(emailText, passwordText)
