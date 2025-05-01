@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.institutmarianao.xo_agenda.MainActivity
 import com.institutmarianao.xo_agenda.MenuActivity
@@ -37,6 +38,7 @@ class LoginActivity : AppCompatActivity() {
 
         // Inicializar Firebase Auth
         auth = FirebaseAuth.getInstance()
+        FirebaseApp.initializeApp(this);
 
         // Referencias a la UI
 
@@ -112,6 +114,10 @@ class LoginActivity : AppCompatActivity() {
                     editTextPassword.requestFocus()
                 }
                 isValid = false
+            }
+            // FALTA ESTA LÍNEA:
+            if (isValid) {
+                loginUser(email, password)
             }
         }
     }

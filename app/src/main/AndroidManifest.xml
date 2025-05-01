@@ -26,6 +26,7 @@
         <activity android:name=".MenuActivity"/>
         <activity android:name=".MainActivity"/>
         <activity android:name=".login.SignUpActivity"/>
+        <activity android:name=".profile.ProfileActivity" />
 
         <activity
             android:name=".login.RecoveryActivity"
