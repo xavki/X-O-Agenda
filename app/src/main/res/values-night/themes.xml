@@ -1,7 +1,16 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.XOAgenda" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <!-- Estilo para apoyar modo oscuro -->
+        <item name="colorPrimary">#C54B54</item>
+        <item name="colorControlActivated">@color/fontMain</item> <!-- Verde cuando está marcado -->
+
+        <!-- Si usas un CalendarView y quieres modificar su fondo -->
+        <item name="android:calendarViewStyle">@style/CalendariViewStyle</item>
+    </style>
+
+    <!-- Estilo personalizado para CalendarView en modo oscuro -->
+    <style name="CalendariViewStyle">
+        <item name="android:background">#222222</item> <!-- tono oscuro -->
+        <!-- Puedes ajustar otros atributos si es necesario -->
     </style>
 </resources>

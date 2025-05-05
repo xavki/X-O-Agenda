@@ -50,27 +50,39 @@ class SettingFragments : Fragment() {
         }
 
         // CAMBIAR TEMA
+        // CAMBIAR TEMA
         txtStyle.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Selecciona un tema")
 
-            // Establecer las opciones de tema
+            // Opciones de temas
             val themes = arrayOf("Claro", "Oscuro")
 
-            builder.setItems(themes) { _, which ->
+            // Detectar el modo actual
+            val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+
+            val defaultSelection = when (currentNightMode) {
+                Configuration.UI_MODE_NIGHT_YES -> 1 // Oscuro
+                Configuration.UI_MODE_NIGHT_NO -> 0  // Claro
+                else -> 0
+            }
+
+            builder.setSingleChoiceItems(themes, defaultSelection) { dialog, which ->
                 when (which) {
                     0 -> {
                         // Cambiar a tema claro
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                        updateThemeText()
                     }
                     1 -> {
                         // Cambiar a tema oscuro
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                        updateThemeText()
                     }
                 }
+                // Después de cambiar el modo, actualizar el texto
+                updateThemeText()
+                dialog.dismiss()
             }
+
             // Mostrar el AlertDialog
             builder.show()
         }
@@ -154,9 +166,10 @@ class SettingFragments : Fragment() {
         return view
     }
     // Función para actualizar el texto de txtStyle dependiendo del tema
+// Función para actualizar el texto de txtStyle dependiendo del tema
     private fun updateThemeText() {
-        val currentMode = AppCompatDelegate.getDefaultNightMode()
-        if (currentMode == AppCompatDelegate.MODE_NIGHT_YES) {
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
             txtStyle.text = "Tema: Oscuro"
         } else {
             txtStyle.text = "Tema: Claro"
