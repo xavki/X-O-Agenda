@@ -48,6 +48,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu" />
 
+    <ImageButton
+        android:id="@+id/btnañadir"
+        android:layout_width="60dp"
+        android:layout_height="40dp"
+        android:backgroundTint="#00FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/listAct"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtDay"
+        app:layout_constraintTop_toBottomOf="@+id/calendar"
+        app:srcCompat="@drawable/ic_add" />
+
     <CalendarView
         android:id="@+id/calendar"
         android:layout_width="0dp"
@@ -59,33 +70,23 @@
 
     <ListView
         android:id="@+id/listAct"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="413dp"
+        android:layout_height="330dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtDay" />
+        app:layout_constraintTop_toBottomOf="@+id/btnañadir" />
 
     <TextView
         android:id="@+id/txtDay"
-        android:layout_width="0dp"
+        android:layout_width="351dp"
         android:layout_height="40dp"
-        android:layout_marginTop="1dp"
         android:text="TextView"
         android:textColor="@color/fontMain"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/listAct"
-        app:layout_constraintEnd_toStartOf="@+id/spDate"
+        app:layout_constraintEnd_toStartOf="@+id/btnañadir"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calendar" />
-
-    <Spinner
-        android:id="@+id/spDate"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        app:layout_constraintBottom_toTopOf="@+id/listAct"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtDay"
         app:layout_constraintTop_toBottomOf="@+id/calendar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
