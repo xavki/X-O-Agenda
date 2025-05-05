@@ -10,7 +10,7 @@
 
     <!-- Estilo personalizado para CalendarView en modo oscuro -->
     <style name="CalendariViewStyle">
-        <item name="android:background">#222222</item> <!-- tono oscuro -->
+        <item name="android:background">#1C1B1F</item> <!-- tono oscuro -->
         <!-- Puedes ajustar otros atributos si es necesario -->
     </style>
 </resources>
