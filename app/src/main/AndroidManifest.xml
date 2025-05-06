@@ -15,27 +15,35 @@
 
         <activity
             android:name=".login.LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".HomeActivity"/>
-        <activity android:name=".MenuActivity"/>
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".login.SignUpActivity"/>
-        <activity android:name=".profile.ProfileActivity" />
-
+        <activity android:name=".login.SignUpActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".login.RecoveryActivity"
             android:label="Account Recovery"
             android:parentActivityName=".login.LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".login.LoginActivity" />
+                android:value=".login.LoginActivity"
+                android:screenOrientation="portrait"/>
         </activity>
+        <activity android:name=".profile.ProfileActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".HomeActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MenuActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".AlertFragment"
+            android:screenOrientation="portrait"/>
 
     </application>
 
