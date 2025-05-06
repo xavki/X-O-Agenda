@@ -6,17 +6,26 @@
     android:layout_height="match_parent"
     tools:ignore="ExtraText">
 
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#00FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtMenuAlerts"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
-        android:id="@+id/txtMenuConf"
+        android:id="@+id/txtMenuAlerts"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:fontFamily="sans-serif-medium"
         android:paddingTop="20dp"
-        android:text="Alert"
+        android:text="Alertas"
         android:textAlignment="center"
         android:textSize="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+        app:layout_constraintStart_toEndOf="@+id/btnOpenMenu"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
@@ -24,31 +33,18 @@
         android:layout_width="0dp"
         android:layout_height="1dp"
         android:background="#D3D3D3"
-        app:layout_constraintTop_toBottomOf="@id/txtMenuConf"
+        app:layout_constraintTop_toBottomOf="@id/txtMenuAlerts"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/btnOpenMenu"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/txtMenuConf"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:backgroundTint="#00FFFFFF"
+        app:layout_constraintEnd_toStartOf="@+id/txtMenuAlerts"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_menu" />
-
-    <ListView
-        android:id="@+id/listView"
-        android:layout_width="409dp"
-        android:layout_height="668dp"
-        android:text="No hay notificaciones"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/lineaGris" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
