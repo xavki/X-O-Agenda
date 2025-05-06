@@ -29,17 +29,27 @@ class CalendariFragment : Fragment() {
         val calendarView = view.findViewById<CalendarView>(R.id.calendar)
         val txtDay = view.findViewById<TextView>(R.id.txtDay)
 
+        val today = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("'Día' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
+        val formattedDate = dateFormat.format(today.time)
+        txtDay.text =
+            formattedDate.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
+
+
         calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
             // Calendar usa 0-based months, por eso sumamos 1
             val calendar = Calendar.getInstance().apply {
                 set(year, month, dayOfMonth)
             }
 
-            val dateFormat = SimpleDateFormat("'Dia' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
+            val dateFormat =
+                SimpleDateFormat("'Dia' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
             val formattedDate = dateFormat.format(calendar.time)
 
             txtDay.text =
                 formattedDate.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+
         }
 
         return view
