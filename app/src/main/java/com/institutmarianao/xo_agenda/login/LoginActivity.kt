@@ -13,6 +13,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseUser
 import com.institutmarianao.xo_agenda.MainActivity
 import com.institutmarianao.xo_agenda.MenuActivity
 import com.institutmarianao.xo_agenda.R
@@ -40,9 +44,10 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         FirebaseApp.initializeApp(this);
 
-        // Referencias a la UI
 
-
+        val auth = FirebaseAuth.getInstance()
+// Obtén el usuario actualmente autenticado
+        val currentUser: FirebaseUser? = auth.currentUser
         // CONFIGURACIÓN BOTONES:
         btnSingIn = findViewById(R.id.btnSingIn)
         btnSingUp = findViewById(R.id.btnSingUp)
@@ -58,6 +63,8 @@ class LoginActivity : AppCompatActivity() {
         btnSingUp.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
+
+
         }
 
         btnGoogle.setOnClickListener {
@@ -102,7 +109,7 @@ class LoginActivity : AppCompatActivity() {
             // Validar email
             if (email.isEmpty()) {
                 emailEditText.error = "Introduce tu email"
-                if (isValid) { // Solo damos el foco si no se ha dado antes
+                if (isValid) {
                     emailEditText.requestFocus()
                 }
                 isValid = false
@@ -115,12 +122,75 @@ class LoginActivity : AppCompatActivity() {
                 }
                 isValid = false
             }
-            // FALTA ESTA LÍNEA:
+
             if (isValid) {
-                loginUser(email, password)
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { authResult ->
+                        val user = authResult.user
+                        if (user != null && user.isEmailVerified) {
+                            // Email verificado: continuar al MainActivity
+                            Toast.makeText(this, "¡Inicio de sesión exitoso!", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, MenuActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            // Email NO verificado: reenviar email de verificación
+                            user?.sendEmailVerification()
+                                ?.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        Toast.makeText(
+                                            this,
+                                            "Tu email no está verificado. Te hemos enviado un nuevo correo de verificación.",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    } else {
+                                        Toast.makeText(
+                                            this,
+                                            "Error al enviar el correo de verificación.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+
+                                    // Después de enviar el correo, cerramos sesión
+                                    FirebaseAuth.getInstance().signOut()
+                                }
+                        }
+
+                    }
+                    .addOnFailureListener { e ->
+                        // Errores de autenticación
+                        when (e) {
+                            is FirebaseAuthInvalidUserException -> {
+                                Toast.makeText(this, "El usuario no existe.", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+
+                            is FirebaseAuthInvalidCredentialsException -> {
+                                Toast.makeText(this, "Contraseña incorrecta.", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+
+                            is FirebaseAuthException -> {
+                                Toast.makeText(
+                                    this,
+                                    "Error de autenticación: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+
+                            else -> {
+                                Toast.makeText(
+                                    this,
+                                    "Error inesperado: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
             }
         }
     }
+
 
     private fun loginUser(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
@@ -128,7 +198,8 @@ class LoginActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     // Login exitoso
                     val intent = Intent(this, MenuActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
                     finish()
                 } else {  // Verificar si existe una excepción en la tarea (por ejemplo, contraseña o email incorrectos)
@@ -177,3 +248,4 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 }
+

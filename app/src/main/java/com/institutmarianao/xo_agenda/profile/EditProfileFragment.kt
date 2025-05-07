@@ -86,7 +86,7 @@ class EditProfileFragment : Fragment() {
             // Si el email cambió, primero reautenticamos
             if (newEmail != currentEmail) {
                 // Mostramos un diálogo para pedir la contraseña
-               // cambioemail(user, currentEmail, newEmail, updates, uid)
+                //cambioemail(user, currentEmail, newEmail, updates, uid)
             } else {
                 // Solo actualiza nombre/teléfono
                 FirebaseFirestore.getInstance().collection("usuarios").document(uid)
@@ -199,90 +199,90 @@ class EditProfileFragment : Fragment() {
             }
     }
 
-   /* private fun cambioemail(
-        user: FirebaseUser,
-        currentEmail: String,
-        newEmail: String,
-        updates: HashMap<String, Any>,
-        uid: String
-    ) {
-        val passwordInput = EditText(requireContext())
-        passwordInput.inputType =
-            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+    /*private fun cambioemail(
+       user: FirebaseUser,
+       currentEmail: String,
+       newEmail: String,
+       updates: HashMap<String, Any>,
+       uid: String
+   ) {
+       val passwordInput = EditText(requireContext())
+       passwordInput.inputType =
+           InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
 
-        // Diálogo para pedir la contraseña
-        AlertDialog.Builder(requireContext())
-            .setTitle("Reautenticación requerida")
-            .setMessage("Introduce tu contraseña para cambiar el email")
-            .setView(passwordInput)
-            .setPositiveButton("Confirmar") { _, _ ->
-                val password = passwordInput.text.toString()
+       // Diálogo para pedir la contraseña
+       AlertDialog.Builder(requireContext())
+           .setTitle("Reautenticación requerida")
+           .setMessage("Introduce tu contraseña para cambiar el email")
+           .setView(passwordInput)
+           .setPositiveButton("Confirmar") { _, _ ->
+               val password = passwordInput.text.toString()
 
-                // Creamos credenciales para reautenticación
-                val credential = EmailAuthProvider.getCredential(currentEmail, password)
+               // Creamos credenciales para reautenticación
+               val credential = EmailAuthProvider.getCredential(currentEmail, password)
 
-                user.reauthenticate(credential)
-                    .addOnSuccessListener {
-                        // Aquí verificamos si la reautenticación fue exitosa
-                        Log.d("EmailChange", "Reauthentication successful.")
+               user.reauthenticate(credential)
+                   .addOnSuccessListener {
+                       // Aquí verificamos si la reautenticación fue exitosa
+                       Log.d("EmailChange", "Reauthentication successful.")
 
-                        // Enviar el correo de verificación al nuevo email
-                        FirebaseAuth.getInstance().fetchSignInMethodsForEmail(newEmail)
-                            .addOnSuccessListener {
-                                // Enviamos verificación al nuevo correo
-                                FirebaseAuth.getInstance().currentUser?.sendEmailVerification()
-                                    ?.addOnSuccessListener {
-                                        Toast.makeText(
-                                            requireContext(),
-                                            "Verificación enviada a $newEmail. Verifica antes de continuar.",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                        Log.d("EmailChange", "Email de validacion enviado")
+                       // Enviar el correo de verificación al nuevo email
+                       FirebaseAuth.getInstance().fetchSignInMethodsForEmail(newEmail)
+                           .addOnSuccessListener {
+                               // Enviamos verificación al nuevo correo
+                               FirebaseAuth.getInstance().currentUser?.updateEmail(newEmail)
+                                   ?.addOnSuccessListener {
+                                       Toast.makeText(
+                                           requireContext(),
+                                           "Verificación enviada a $newEmail. Verifica antes de continuar.",
+                                           Toast.LENGTH_LONG
+                                       ).show()
+                                       Log.d("EmailChange", "Email de validacion enviado")
 
 
-                                        // Aquí podrías redirigir al usuario a otra pantalla de "verificación pendiente"
-                                        // y guardar el newEmail temporalmente si lo necesitas luego.
-                                    }
-                                    ?.addOnFailureListener { e ->
-                                        Toast.makeText(
-                                            requireContext(),
-                                            "Error al enviar verificación: ${e.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    requireContext(),
-                                    "No se puede enviar verificación: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
+                                       // Aquí podrías redirigir al usuario a otra pantalla de "verificación pendiente"
+                                       // y guardar el newEmail temporalmente si lo necesitas luego.
+                                   }
+                                   ?.addOnFailureListener { e ->
+                                       Toast.makeText(
+                                           requireContext(),
+                                           "Error al enviar verificación: ${e.message}",
+                                           Toast.LENGTH_SHORT
+                                       ).show()
+                                   }
+                           }
+                           .addOnFailureListener { e ->
+                               Toast.makeText(
+                                   requireContext(),
+                                   "No se puede enviar verificación: ${e.message}",
+                                   Toast.LENGTH_SHORT
+                               ).show()
+                           }
 
-                            .addOnFailureListener { exception ->
-                                val message = exception.message ?: "Error desconocido"
-                                Log.e("EmailChange", "Fallo al actualizar email", exception)
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Error al cambiar email: $message",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
-                    }
-                    .addOnFailureListener { exception ->
-                        // Aquí registramos si la reautenticación falló
-                        Log.e("EmailChange", "Reauthentication failed", exception)
-                        Toast.makeText(
-                            requireContext(),
-                            "Contraseña incorrecta",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
+                          .addOnFailureListener { exception ->
+                               val message = exception.message ?: "Error desconocido"
+                               Log.e("EmailChange", "Fallo al actualizar email", exception)
+                               Toast.makeText(
+                                   requireContext(),
+                                   "Error al cambiar email: $message",
+                                   Toast.LENGTH_LONG
+                               ).show()
+                           }
+                   }
+                   .addOnFailureListener { exception ->
+                       // Aquí registramos si la reautenticación falló
+                       Log.e("EmailChange", "Reauthentication failed", exception)
+                       Toast.makeText(
+                           requireContext(),
+                           "Contraseña incorrecta",
+                           Toast.LENGTH_SHORT
+                       ).show()
+                   }
 
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }*/
+           }
+           .setNegativeButton("Cancelar", null)
+           .show()
+   }*/
 
 
 }
