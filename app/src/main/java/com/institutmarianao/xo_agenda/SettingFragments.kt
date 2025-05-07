@@ -16,6 +16,8 @@ import com.institutmarianao.xo_agenda.login.LoginActivity
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class SettingFragments : Fragment() {
 
@@ -230,9 +232,17 @@ class SettingFragments : Fragment() {
         val currentUser = auth.currentUser
         currentUser?.let {
             // Eliminar datos de la base de datos (por ejemplo, Firestore)
-            val userId = it.uid
-            firestore.collection("users").document(userId).delete()
+            val userId = currentUser.uid // Obtenemos el UID del usuario
+            val db = Firebase.firestore // Obtenemos la instancia de Firestore
+            // Éxito en la operación previa (probablemente reautenticación)
+            // Ahora procedemos a eliminar datos y cuenta.
+            val userDocumentRef = db.collection("usuarios").document(userId)
+            // 1. Referencia al documento del usuario en Firestore (ejemplo: /users/{uid})
+            // **ADAPTA ESTE PATH ('users') AL DE TU BASE DE DATOS SI ES DIFERENTE**
+            firestore.collection("usuarios").document(userId).delete()
+            userDocumentRef.delete()
                 .addOnSuccessListener {
+                    userDocumentRef.delete()
                     // Eliminar la cuenta en Firebase Authentication
                     currentUser.delete()
                         .addOnSuccessListener {

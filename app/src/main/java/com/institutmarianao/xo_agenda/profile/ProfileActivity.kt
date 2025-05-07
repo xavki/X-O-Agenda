@@ -13,7 +13,7 @@ class ProfileActivity : AppCompatActivity() {
     // Declaración de las vistas donde se mostrarán los datos del usuario
     private lateinit var nameTextView: TextView
     private lateinit var emailTextView: TextView
-    private lateinit var addressTextView: TextView
+    private lateinit var phoneTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +23,7 @@ class ProfileActivity : AppCompatActivity() {
         // Inicializa las referencias a las vistas
         nameTextView = findViewById(R.id.editname)
         emailTextView = findViewById(R.id.editemail)
-        addressTextView = findViewById(R.id.editphone)
+        phoneTextView = findViewById(R.id.editphone)
 
         // 1. Obtén la instancia de FirebaseAuth y el usuario actual
         val auth = FirebaseAuth.getInstance()
@@ -44,12 +44,12 @@ class ProfileActivity : AppCompatActivity() {
                         // El documento existe, extrae los datos
                         val name = document.getString("name") ?: "Nombre no disponible"
                         val email = document.getString("email") ?: "Email no disponible"
-                        val address = document.getString("address") ?: "Dirección no disponible"
+                        val phone = document.getString("phone") ?: "Telefono no disponible"
 
                         // 5. Actualiza la UI con los datos obtenidos
                         nameTextView.text = name
                         emailTextView.text = email
-                        addressTextView.text = address
+                        phoneTextView.text = phone
                     } else {
                         // El documento no existe: notifica al usuario
                         Toast.makeText(this, "No se encontraron datos de perfil", Toast.LENGTH_SHORT).show()
