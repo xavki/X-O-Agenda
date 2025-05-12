@@ -312,13 +312,18 @@ class CalendariFragment : Fragment() {
             val descripcio = editTextDescripcio.text.toString().trim()
             val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-            if (titol.isEmpty() || dataIniciSeleccionada == null) {
-                Toast.makeText(requireContext(), "Omple el títol i la data límit", Toast.LENGTH_SHORT).show()
+            if (titol.isEmpty() || dataIniciSeleccionada == null || dataFinalSeleccionada == null ) {
+                Toast.makeText(requireContext(), "Omple el títol, la data límit i la data de finalització", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (recordatoriSeleccionat != null && recordatoriSeleccionat!! > dataIniciSeleccionada!!) {
                 Toast.makeText(requireContext(), "El recordatori no pot ser després de la data límit", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (dataFinalSeleccionada != null && dataFinalSeleccionada!! < dataIniciSeleccionada!!) {
+                Toast.makeText(requireContext(), "La data de finalització ha de ser despres de la data d'inici", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -348,7 +353,4 @@ class CalendariFragment : Fragment() {
 
         dialog.show()
     }
-
-
-
 }
