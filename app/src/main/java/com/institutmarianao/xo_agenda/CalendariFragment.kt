@@ -68,7 +68,7 @@ class CalendariFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Selecciona una opció")
 
-        val options = arrayOf("Tasca", "Esdeveniments")
+        val options = arrayOf("Tasca", "Esdeveniment")
 
         builder.setSingleChoiceItems(options, -1) { dialog, which ->
             dialog.dismiss() // Cierra el primer diálogo
@@ -76,25 +76,10 @@ class CalendariFragment : Fragment() {
             when (which) {
                 0 -> { // Tasca
                     mostrarDialogAfegirTasca()
-                    /* val tascaDialog = AlertDialog.Builder(requireContext())
-                         .setTitle("Nova Tasca")
-                         .setMessage("Aquí pots afegir una nova tasca.")
-                         .setPositiveButton("OK") { dialog2, _ ->
-                             dialog2.dismiss()
-                         }
-                         .create()
-                     tascaDialog.show()*/
                 }
 
                 1 -> { // Esdeveniments
-                    val eventDialog = AlertDialog.Builder(requireContext())
-                        .setTitle("Nou Esdeveniment")
-                        .setMessage("Aquí pots afegir un nou esdeveniment.")
-                        .setPositiveButton("OK") { dialog2, _ ->
-                            dialog2.dismiss()
-                        }
-                        .create()
-                    eventDialog.show()
+                    mostrarDialogAfegirEvent()
                 }
             }
         }
@@ -221,6 +206,121 @@ class CalendariFragment : Fragment() {
 
         dialog.show()
     }
+
+    fun mostrarDialogAfegirEvent() {
+        val builder = AlertDialog.Builder(requireContext())
+        val inflater = LayoutInflater.from(requireContext())
+        val dialogView = inflater.inflate(R.layout.dialog_afegir_esdeveniment, null)
+
+        val editTextTitol = dialogView.findViewById<EditText>(R.id.editTextTitol)
+        val editTextDescripcio = dialogView.findViewById<EditText>(R.id.editTextDescripcio)
+        val textViewDataLimit = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
+        val textViewRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
+        val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarTasca)
+
+        val estats = listOf("Pendent", "En_Proces", "Completada")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, estats)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        var dataLimitSeleccionada: Timestamp? = null
+        var recordatoriSeleccionat: Timestamp? = null
+        val calendar = Calendar.getInstance()
+
+        // Selección de data límit
+        textViewDataLimit.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            textViewDataLimit.text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(calendar.time)
+                            dataLimitSeleccionada = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.show()
+        }
+
+        // Selección de recordatori
+        textViewRecordatori.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            textViewRecordatori.text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(calendar.time)
+                            recordatoriSeleccionat = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.show()
+        }
+
+        val dialog = builder.setView(dialogView)
+            .setTitle("Nova Tasca")
+            .create()
+
+        buttonGuardar.setOnClickListener {
+            val titol = editTextTitol.text.toString().trim()
+            val descripcio = editTextDescripcio.text.toString().trim()
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (titol.isEmpty() || dataLimitSeleccionada == null) {
+                Toast.makeText(requireContext(), "Omple el títol i la data límit", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (recordatoriSeleccionat != null && recordatoriSeleccionat!! > dataLimitSeleccionada!!) {
+                Toast.makeText(requireContext(), "El recordatori no pot ser després de la data límit", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if (uid != null) {
+                val db = FirebaseFirestore.getInstance()
+                val tasca = hashMapOf(
+                    "titol" to titol,
+                    "descripció" to descripcio,
+                    "data_limit" to dataLimitSeleccionada,
+                    "recordatori" to recordatoriSeleccionat
+                )
+
+                db.collection("usuarios")
+                    .document(uid)
+                    .collection("esdeveniments")
+                    .add(tasca)
+                    .addOnSuccessListener {
+                        Toast.makeText(requireContext(), "Esdeveniment guardat", Toast.LENGTH_SHORT).show()
+                        dialog.dismiss()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT).show()
+                    }
+            }
+        }
+
+        dialog.show()
+    }
+
 
 
 }

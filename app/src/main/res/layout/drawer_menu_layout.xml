@@ -126,11 +126,11 @@
         android:id="@+id/settingsicon"
         android:layout_width="97dp"
         android:layout_height="81dp"
+        android:layout_marginBottom="16dp"
         android:padding="16dp"
         android:src="@drawable/ic_settings"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textAlertas" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
