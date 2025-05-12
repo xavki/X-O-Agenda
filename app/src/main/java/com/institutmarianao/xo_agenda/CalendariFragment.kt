@@ -20,9 +20,13 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
+import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
+import com.institutmarianao.xo_agenda.models.CalendarItem
 import java.util.Locale
 
 class CalendariFragment : Fragment() {
@@ -42,6 +46,16 @@ class CalendariFragment : Fragment() {
         }
         val calendarView = view.findViewById<CalendarView>(R.id.calendar)
         val txtDay = view.findViewById<TextView>(R.id.txtDay)
+        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerViewCalendarItems)
+
+        //mostrar tareas y eventos
+        val calendarItems = mutableListOf<CalendarItem>()
+        val adapter = CalendarItemAdapter(calendarItems)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = adapter
+
+        cargareventosytareas(calendarItems, adapter)
+
 
         val today = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("'Día' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
@@ -352,5 +366,50 @@ class CalendariFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun cargareventosytareas(
+        calendarItems: MutableList<CalendarItem>,
+        adapter: CalendarItemAdapter
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        calendarItems.clear() // Limpia antes de cargar
+
+        val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
+
+        // Función interna para procesar los resultados
+        fun procesarDocumentos(
+            documents: QuerySnapshot,
+            tipo: String
+        ) {
+            for (document in documents) {
+                val title = document.getString("titol") ?: ""
+                val description = document.getString("descripció") ?: ""
+                val timestamp = document.getTimestamp("data_limit")
+                val fecha = timestamp?.toDate()
+                val dateTime = fecha?.let { dateFormat.format(it) } ?: ""
+                calendarItems.add(CalendarItem(title, description, dateTime, tipo, fecha))
+            }
+
+            // Ordenar por fecha
+            calendarItems.sortBy { it.fechaOrdenacion }
+            adapter.notifyDataSetChanged()
+        }
+
+        // Cargar tareas
+        db.collection("usuarios").document(uid).collection("tasques")
+            .get()
+            .addOnSuccessListener { documents ->
+                procesarDocumentos(documents, "Tasca")
+
+                // Cargar eventos después de las tareas
+                db.collection("usuarios").document(uid).collection("esdeveniments")
+                    .get()
+                    .addOnSuccessListener { eventos ->
+                        procesarDocumentos(eventos, "Esdeveniment")
+                    }
+            }
     }
 }
