@@ -215,14 +215,16 @@ class CalendariFragment : Fragment() {
         val editTextTitol = dialogView.findViewById<EditText>(R.id.editTextTitol)
         val editTextDescripcio = dialogView.findViewById<EditText>(R.id.editTextDescripcio)
         val textViewDataLimit = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
+        val textViewFinalitzacio = dialogView.findViewById<TextView>(R.id.textviewFinalitzacio)
         val textViewRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
-        val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarTasca)
+        val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarEsdeveniment)
 
         val estats = listOf("Pendent", "En_Proces", "Completada")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, estats)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        var dataLimitSeleccionada: Timestamp? = null
+        var dataIniciSeleccionada: Timestamp? = null
+        var dataFinalSeleccionada: Timestamp? = null
         var recordatoriSeleccionat: Timestamp? = null
         val calendar = Calendar.getInstance()
 
@@ -236,7 +238,32 @@ class CalendariFragment : Fragment() {
                         { _, hourOfDay, minute ->
                             calendar.set(year, month, day, hourOfDay, minute)
                             textViewDataLimit.text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(calendar.time)
-                            dataLimitSeleccionada = Timestamp(calendar.time)
+                            dataIniciSeleccionada = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.show()
+        }
+
+        // SELECCIO DATA FINALITZACIÓ
+        textViewFinalitzacio.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            textViewFinalitzacio.text = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(calendar.time)
+                            dataFinalSeleccionada = Timestamp(calendar.time)
                         },
                         calendar.get(Calendar.HOUR_OF_DAY),
                         calendar.get(Calendar.MINUTE),
@@ -285,12 +312,12 @@ class CalendariFragment : Fragment() {
             val descripcio = editTextDescripcio.text.toString().trim()
             val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-            if (titol.isEmpty() || dataLimitSeleccionada == null) {
+            if (titol.isEmpty() || dataIniciSeleccionada == null) {
                 Toast.makeText(requireContext(), "Omple el títol i la data límit", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            if (recordatoriSeleccionat != null && recordatoriSeleccionat!! > dataLimitSeleccionada!!) {
+            if (recordatoriSeleccionat != null && recordatoriSeleccionat!! > dataIniciSeleccionada!!) {
                 Toast.makeText(requireContext(), "El recordatori no pot ser després de la data límit", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -300,7 +327,8 @@ class CalendariFragment : Fragment() {
                 val tasca = hashMapOf(
                     "titol" to titol,
                     "descripció" to descripcio,
-                    "data_limit" to dataLimitSeleccionada,
+                    "data_inici" to dataIniciSeleccionada,
+                    "data_fi" to dataFinalSeleccionada,
                     "recordatori" to recordatoriSeleccionat
                 )
 
