@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewItemTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        tools:text="Título del Ítem" />
+
+    <TextView
+        android:id="@+id/textViewItemDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Descripción del ítem." />
+
+    <TextView
+        android:id="@+id/textViewItemDateTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        tools:text="Fecha: 01/01/2025 10:00" />
+
+    <TextView
+        android:id="@+id/textViewItemType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="10sp"
+        android:textColor="#888888"
+        tools:text="Tipo: Tarea" />
+
+</LinearLayout>
