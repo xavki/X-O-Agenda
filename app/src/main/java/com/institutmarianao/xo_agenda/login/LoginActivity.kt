@@ -128,7 +128,7 @@ class LoginActivity : AppCompatActivity() {
                     .addOnSuccessListener { authResult ->
                         val user = authResult.user
                         if (user != null && user.isEmailVerified) {
-                            // Email verificado: continuar al MainActivity
+                            // Email verificado: continuar
                             Toast.makeText(this, "¡Inicio de sesión exitoso!", Toast.LENGTH_SHORT).show()
                             val intent = Intent(this, MenuActivity::class.java)
                             startActivity(intent)
@@ -240,12 +240,13 @@ class LoginActivity : AppCompatActivity() {
 
         // Si ya hay un usuario autenticado (y se recuerda la sesión), redirige a la actividad deseada
         val currentUser = auth.currentUser
-        if (currentUser != null) {
+        if (currentUser != null && currentUser.isEmailVerified) {
             val intent = Intent(this, MenuActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
+
     }
 }
 

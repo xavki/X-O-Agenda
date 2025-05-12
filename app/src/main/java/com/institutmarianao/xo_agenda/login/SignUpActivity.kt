@@ -138,6 +138,25 @@ class SignUpActivity : AppCompatActivity() {
                         val user = auth.currentUser
                         val uid = user?.uid ?: return@addOnCompleteListener
 
+                        // Enviar correo de verificación
+                        user.sendEmailVerification()
+                            .addOnCompleteListener { verifyTask ->
+                                if (verifyTask.isSuccessful) {
+                                    Toast.makeText(
+                                        this,
+                                        "Registro exitoso. Revisa tu correo para verificar tu cuenta.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                } else {
+                                    Toast.makeText(
+                                        this,
+                                        "Error al enviar el correo de verificación.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+
+                        // Guardar datos en Firestore
                         val userData = hashMapOf(
                             "nom" to name,
                             "email" to emailText
@@ -169,6 +188,7 @@ class SignUpActivity : AppCompatActivity() {
                         ).show()
                     }
                 }
+
         }
 
     }
