@@ -7,7 +7,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         tools:ignore="ExtraText">
 
         <!-- Icono Menú (parte superior izquierda) -->
@@ -46,7 +46,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/lineaGris7"
-            tools:srcCompat="@drawable/ic_launcher_background" />
+            tools:srcCompat="@tools:sample/avatars" />
 
         <!-- EditText: Nombre -->
         <TextView
@@ -140,8 +140,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
             android:backgroundTint="@color/fontMain"
-            android:text="Enviar email de restablecimiento de contraseña"
+            android:text="Restablecer Contraseña"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.505"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnConfirm" />
 
