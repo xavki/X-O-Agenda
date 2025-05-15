@@ -16,6 +16,7 @@
         <string name="sing_up_button">Registrarse</string>
         <string name="google_button">G Google</string>
         <string name="titulocalendario">Calendario</string>
+    <string name="channel_name">Alertes de l’Agenda</string>
 
 
     <string-array name="array_estats_tasca">
