@@ -1,5 +1,6 @@
 package com.institutmarianao.xo_agenda.login
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
@@ -10,22 +11,31 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseUser
-import com.institutmarianao.xo_agenda.MainActivity
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.institutmarianao.xo_agenda.MenuActivity
 import com.institutmarianao.xo_agenda.R
-import com.institutmarianao.xo_agenda.profile.ProfileActivity
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var emailEditText: EditText
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
 
     // private lateinit var passwordEditText: EditText
     private lateinit var btnSingIn: Button
@@ -36,6 +46,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var imgEye: ImageView
     private var isEyeOpen = false
     private lateinit var editTextPassword: EditText
+    private lateinit var firestore: FirebaseFirestore // <--- Declarada aquí, ¡muy bien!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -58,6 +70,8 @@ class LoginActivity : AppCompatActivity() {
         emailEditText = findViewById(R.id.loginemail)  // Inicialización
         //passwordEditText = findViewById(R.id.loginpassword)  // Inicializació
         editTextPassword = findViewById(R.id.loginpassword)  // Inicializació
+
+        firestore = FirebaseFirestore.getInstance() // <--- ¡Añadimos esta línea!
 
 
         btnSingUp.setOnClickListener {
@@ -189,6 +203,119 @@ class LoginActivity : AppCompatActivity() {
                     }
             }
         }
+
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail() // Puedes pedir el email si lo necesitas
+            .requestProfile() // Puedes pedir el perfil (nombre, foto, etc.)
+            .build()
+
+        // Crea el cliente de inicio de sesión de Google
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+
+        // Inicializa el Activity Result Launcher para el inicio de sesión de Google
+        googleSignInLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data
+                val task = GoogleSignIn.getSignedInAccountFromIntent(intent)
+                try {
+                    // La tarea fue exitosa, obtiene la cuenta de Google
+                    val account = task.getResult(ApiException::class.java)
+                    if (account != null) {
+                        // Ahora autentica en Firebase con la cuenta de Google
+                        firebaseAuthWithGoogle(account.idToken)
+                    } else {
+                        Toast.makeText(this, "Error: Cuenta de Google nula", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: ApiException) {
+                    // Error en el inicio de sesión de Google
+                    Toast.makeText(this, "Google Sign-In falló: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                    // Log.e("GoogleSignIn", "Google sign in failed", e) // Opcional: loguear el error detallado
+                }
+            } else {
+                // El usuario canceló el inicio de sesión de Google
+                Toast.makeText(this, "Inicio de sesión de Google cancelado", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+        // Encuentra el botón y establece el OnClickListener
+        val btnGoogle = findViewById<Button>(R.id.btnGoogle)
+        btnGoogle.setOnClickListener {
+            // Inicia el flujo de inicio de sesión de Google
+            signInWithGoogle()
+        }
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+    // Función para autenticar en Firebase con la credencial de Google
+    private fun firebaseAuthWithGoogle(idToken: String?) {
+        if (idToken == null) {
+            Toast.makeText(this, "ID Token de Google nulo", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        // Inicia sesión en Firebase con la credencial de Google
+        auth.signInWithCredential(credential)
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    // Inicio de sesión en Firebase exitoso
+                    val user = auth.currentUser
+                    val intent = Intent(this, MenuActivity::class.java)
+                    intent.flags =
+                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
+                    if (user != null) {
+                        Toast.makeText(this, "¡Autenticación con Google exitosa!", Toast.LENGTH_SHORT).show()
+                        // Ahora, guarda o actualiza los datos del usuario en Firestore
+                        saveUserDataToFirestore(user)
+                        // Puedes navegar a la siguiente pantalla aquí si los datos no son críticos para la navegación
+                        // navigateToMainScreen()
+                    }
+                } else {
+                    // Si falla el inicio de sesión en Firebase
+                    Toast.makeText(this, "Autenticación con Firebase fallida.", Toast.LENGTH_SHORT).show()
+                    // Puedes examinar task.exception para ver el error específico
+                }
+            }
+    }
+
+    // Función para guardar o actualizar los datos del usuario en Firestore
+    private fun saveUserDataToFirestore(user: com.google.firebase.auth.FirebaseUser) {
+        // Crea un Map con los datos que quieres guardar
+        val userData = hashMapOf(
+            "uid" to user.uid, // Siempre es bueno guardar el UID también en el documento
+            "name" to user.displayName,
+            "email" to user.email,
+            "photoUrl" to user.photoUrl.toString(), // Convierte la URI a String
+            "lastSignIn" to System.currentTimeMillis() // Marca de tiempo del último inicio de sesión
+            // Puedes añadir otros campos por defecto aquí si es un nuevo usuario
+        )
+
+        // Guarda los datos en la colección 'users', usando el UID de Firebase Auth como ID del documento
+        // set(userData) creará el documento si no existe, o lo sobrescribirá si ya existe
+        firestore.collection("users").document(user.uid)
+            .set(userData)
+            .addOnSuccessListener {
+                // Datos guardados/actualizados en Firestore con éxito
+                Toast.makeText(this, "Datos del usuario guardados en Firestore.", Toast.LENGTH_SHORT).show()
+                // Ahora sí puedes navegar a la siguiente pantalla
+                // navigateToMainScreen()
+            }
+            .addOnFailureListener { e ->
+                // Error al guardar datos en Firestore
+                Toast.makeText(this, "Error al guardar datos en Firestore.", Toast.LENGTH_SHORT).show()
+                // Log.e("Firestore", "Error writing document", e) // Opcional: loguear el error
+                // Decide qué hacer si falla la escritura en la base de datos (ej: permitir la navegación de todas formas?)
+                // navigateToMainScreen() // Podrías navegar igual si no es crítico
+            }
     }
 
 
