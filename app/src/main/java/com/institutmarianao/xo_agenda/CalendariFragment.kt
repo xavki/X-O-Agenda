@@ -1,5 +1,6 @@
 package com.institutmarianao.xo_agenda
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -12,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CalendarView
-import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -29,8 +29,6 @@ import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
 import com.institutmarianao.xo_agenda.models.CalendarItem
 import java.util.Locale
 import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
-
-
 
 
 class CalendariFragment : Fragment(), OnItemActionListener {
@@ -119,6 +117,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         return view
     }
 
+    @SuppressLint("MissingInflatedId")
     fun mostrarDialogAfegirTasca() {
         val builder = AlertDialog.Builder(requireContext())
         val inflater = LayoutInflater.from(requireContext())
@@ -130,9 +129,12 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         val textViewRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
         val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarTasca)
 
-        val estats = listOf("Pendent", "En_Proces", "Completada")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, estats)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val spinnerEstat = dialogView.findViewById<Spinner>(R.id.spinnerEstat)
+        spinnerEstat.visibility = View.GONE
+        val labelEstat  = dialogView.findViewById<TextView>(R.id.textviewEstado)
+        labelEstat.visibility   = View.GONE
+
+
 
         var dataLimitSeleccionada: Timestamp? = null
         var recordatoriSeleccionat: Timestamp? = null
@@ -239,6 +241,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         Toast.makeText(requireContext(), "Tasca guardada", Toast.LENGTH_SHORT)
                             .show()
                         dialog.dismiss()
+                        cargareventosytareas(calendarItems, adapter)
+
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
@@ -257,14 +261,12 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         val editTextTitol = dialogView.findViewById<EditText>(R.id.editTextTitol)
         val editTextDescripcio = dialogView.findViewById<EditText>(R.id.editTextDescripcio)
-        val textViewDataLimit = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
-        val textViewFinalitzacio = dialogView.findViewById<TextView>(R.id.textviewFinalitzacio)
-        val textViewRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
+        val textDataLimit = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
+        val textFinalitzacio = dialogView.findViewById<TextView>(R.id.textviewFinalitzacio)
+        val textRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
         val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarEsdeveniment)
 
-        val estats = listOf("Pendent", "En_Proces", "Completada")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, estats)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
 
         var dataIniciSeleccionada: Timestamp? = null
         var dataFinalSeleccionada: Timestamp? = null
@@ -272,7 +274,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         val calendar = Calendar.getInstance()
 
         // Selección de data límit
-        textViewDataLimit.setOnClickListener {
+        textDataLimit.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
@@ -280,7 +282,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         requireContext(),
                         { _, hourOfDay, minute ->
                             calendar.set(year, month, day, hourOfDay, minute)
-                            textViewDataLimit.text =
+                            textDataLimit.text =
                                 SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
                                     calendar.time
                                 )
@@ -301,7 +303,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         }
 
         // SELECCIO DATA FINALITZACIÓ
-        textViewFinalitzacio.setOnClickListener {
+        textFinalitzacio.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
@@ -309,7 +311,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         requireContext(),
                         { _, hourOfDay, minute ->
                             calendar.set(year, month, day, hourOfDay, minute)
-                            textViewFinalitzacio.text =
+                            textFinalitzacio.text =
                                 SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
                                     calendar.time
                                 )
@@ -330,7 +332,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         }
 
         // Selección de recordatori
-        textViewRecordatori.setOnClickListener {
+        textRecordatori.setOnClickListener {
             val datePicker = DatePickerDialog(
                 requireContext(),
                 { _, year, month, day ->
@@ -338,7 +340,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         requireContext(),
                         { _, hourOfDay, minute ->
                             calendar.set(year, month, day, hourOfDay, minute)
-                            textViewRecordatori.text =
+                            textRecordatori.text =
                                 SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
                                     calendar.time
                                 )
@@ -411,6 +413,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         Toast.makeText(requireContext(), "Esdeveniment guardat", Toast.LENGTH_SHORT)
                             .show()
                         dialog.dismiss()
+                        cargareventosytareas(calendarItems, adapter)
+
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
@@ -426,7 +430,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         calendarItems: MutableList<CalendarItem>,
         adapter: CalendarItemAdapter
     ) {
-        val db  = FirebaseFirestore.getInstance()
+        val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         calendarItems.clear()
@@ -435,8 +439,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         fun procesarDocumentos(docs: QuerySnapshot, tipo: String) {
             for (doc in docs) {
-                val id          = doc.id
-                val title       = doc.getString("titol") ?: ""
+                val id = doc.id
+                val title = doc.getString("titol") ?: ""
                 val description = doc.getString("descripció") ?: ""
 
                 if (tipo == "Tasca") {
@@ -451,10 +455,10 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 } else {
                     // Para eventos, mostramos inicio - fin
                     val tsStart = doc.getTimestamp("data_inici") ?: continue
-                    val tsEnd   = doc.getTimestamp("data_fi")    ?: tsStart
+                    val tsEnd = doc.getTimestamp("data_fi") ?: tsStart
 
                     val fechaStart = tsStart.toDate()
-                    val fechaEnd   = tsEnd.toDate()
+                    val fechaEnd = tsEnd.toDate()
 
                     val dateTime = "${fmt.format(fechaStart)} - ${fmt.format(fechaEnd)}"
                     // Ordenamos por la fecha de inicio
@@ -471,7 +475,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         // Cargar tareas primero...
         db.collection("usuarios").document(uid).collection("tasques")
-            .get().addOnSuccessListener { procesarDocumentos(it, "Tasca")
+            .get().addOnSuccessListener {
+                procesarDocumentos(it, "Tasca")
                 // ...luego eventos
                 db.collection("usuarios").document(uid).collection("esdeveniments")
                     .get().addOnSuccessListener { procesarDocumentos(it, "Esdeveniment") }
@@ -479,18 +484,323 @@ class CalendariFragment : Fragment(), OnItemActionListener {
     }
 
 
-    // Stub: modifica los campos de la tasca y haz un .update() en Firestore
     private fun mostrarDialogEditarTasca(item: CalendarItem) {
-        // TODO: inflar dialog_afegir_tasca,
-        //       precargar editTextTitol.setText(item.title), …
-        //       y al guardar -> db.collection(".../tasques").document(item.id).update(…)
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_afegir_tasca, null)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        // vistas
+        val edtTitol = dialogView.findViewById<EditText>(R.id.editTextTitol)
+        val edtDesc = dialogView.findViewById<EditText>(R.id.editTextDescripcio)
+        val txtDataLimit = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
+        val txtRecord = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
+        val spinnerEstat = dialogView.findViewById<Spinner>(R.id.spinnerEstat)
+        val btnGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarTasca)
+
+        var dataLimitSeleccionada: Timestamp? = null
+        var recordatoriSeleccionat: Timestamp? = null
+        val calendar = Calendar.getInstance()
+
+        // Spinner
+        val estados = listOf("En Proces", "Completada", "Pendiente")
+        spinnerEstat.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            estados
+        ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
+
+        //cargamos el documento
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        val docRef = FirebaseFirestore.getInstance()
+            .collection("usuarios")
+            .document(uid)
+            .collection("tasques")
+            .document(item.id)
+
+        docRef.get().addOnSuccessListener { doc ->
+            edtTitol.setText(doc.getString("titol"))
+            edtDesc.setText(doc.getString("descripció"))
+
+
+            val fmt = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            doc.getTimestamp("data_limit")?.also {
+                dataLimitSeleccionada = it
+                txtDataLimit.text = fmt.format(it.toDate())
+            }
+            doc.getTimestamp("recordatori")?.also {
+                recordatoriSeleccionat = it
+                txtRecord.text = fmt.format(it.toDate())
+            }
+
+            val actual = doc.getString("estat") ?: "En Proces"
+            spinnerEstat.setSelection(estados.indexOf(actual))
+        }
+
+        // 5) DatePicker / TimePicker para volver a seleccionar límites y recordatorio
+
+        // Selección de data límit
+        txtDataLimit.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            txtDataLimit.text =
+                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
+                                    calendar.time
+                                )
+                            dataLimitSeleccionada = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
+            datePicker.show()
+        }
+
+        // Selección de recordatori
+        txtRecord.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            txtRecord.text =
+                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
+                                    calendar.time
+                                )
+                            recordatoriSeleccionat = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.show()
+        }
+
+
+        // Guardar cambios
+        btnGuardar.setOnClickListener {
+            val nuevoTitol = edtTitol.text.toString().trim()
+            val nuevaDesc = edtDesc.text.toString().trim()
+
+            if (nuevoTitol.isEmpty()) {
+                Toast.makeText(requireContext(), "El títol no pot estar buit", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
+            if (recordatoriSeleccionat != null &&
+                recordatoriSeleccionat!!.toDate().after(dataLimitSeleccionada!!.toDate())
+            ) {
+                Toast.makeText(
+                    requireContext(),
+                    "El recordatori no pot ser després de la data límit",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val updates = hashMapOf<String, Any>(
+                "titol" to nuevoTitol,
+                "descripció" to edtDesc.text.toString().trim(),
+                "estat" to spinnerEstat.selectedItem as String,
+                "data_limit" to dataLimitSeleccionada!!
+                //"recordatori" to recordatoriSeleccionat!!
+
+            )
+            recordatoriSeleccionat?.let { updates["recordatori"] = it }
+
+
+            docRef.update(updates)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Tasca actualitzada", Toast.LENGTH_SHORT)
+                        .show()
+                    dialog.dismiss()
+                    cargareventosytareas(calendarItems, adapter)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
+                        .show()
+                }
+        }
+
+        dialog.show()
     }
 
-    // Stub: modifica los campos de l’esdeveniment y haz un .update() en Firestore
+
     private fun mostrarDialogEditarEvent(item: CalendarItem) {
-        // TODO: inflar dialog_afegir_esdeveniment,
-        //       precargar, y al guardar -> db.collection(".../esdeveniments").document(item.id).update(…)
+        val builder = AlertDialog.Builder(requireContext())
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_afegir_esdeveniment, null)
+        builder.setView(dialogView)
+        val dialog = builder.create()
+
+        val edtTitol = dialogView.findViewById<EditText>(R.id.editTextTitol)
+        val edtDesc = dialogView.findViewById<EditText>(R.id.editTextDescripcio)
+        val txtInici = dialogView.findViewById<TextView>(R.id.textViewDataLimit)
+        val txtFinal = dialogView.findViewById<TextView>(R.id.textviewFinalitzacio)
+        val txtRecord = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
+        val btnGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarEsdeveniment)
+
+        var dataFinalSeleccionada: Timestamp? = null
+        var recordatoriSeleccionat: Timestamp? = null
+        val calendar = Calendar.getInstance()
+
+
+        // Cargar doc para obtener los Timestamps originales
+        val uid = FirebaseAuth.getInstance().currentUser!!.uid
+        val docRef = FirebaseFirestore.getInstance()
+            .collection("usuarios")
+            .document(uid)
+            .collection("esdeveniments")
+            .document(item.id)
+
+        docRef.get().addOnSuccessListener { doc ->
+            edtTitol.setText(doc.getString("titol"))
+            edtDesc.setText(doc.getString("descripció"))
+
+            val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            doc.getTimestamp("data_fi")?.also {
+                dataFinalSeleccionada = it
+                txtFinal.text         = fmt.format(it.toDate())
+            }
+            doc.getTimestamp("recordatori")?.also {
+                recordatoriSeleccionat = it
+                txtRecord.text         = fmt.format(it.toDate())
+            }
+            edtTitol.setText(doc.getString("titol"))
+            edtDesc.setText(doc.getString("descripció"))
+        }
+
+        // fecha de inicio desabilitada
+        txtInici.isClickable = false
+        txtInici.isFocusable = false
+        txtInici.alpha = 0.6f
+
+
+
+        // SELECCIO DATA FINALITZACIÓ
+        txtFinal.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            txtFinal.text =
+                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
+                                    calendar.time
+                                )
+                            dataFinalSeleccionada = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
+            datePicker.show()
+        }
+
+        // Selección de recordatori
+        txtRecord.setOnClickListener {
+            val datePicker = DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    val timePicker = TimePickerDialog(
+                        requireContext(),
+                        { _, hourOfDay, minute ->
+                            calendar.set(year, month, day, hourOfDay, minute)
+                            txtRecord.text =
+                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
+                                    calendar.time
+                                )
+                            recordatoriSeleccionat = Timestamp(calendar.time)
+                        },
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePicker.show()
+        }
+
+        // 3) Guardar cambios
+        btnGuardar.setOnClickListener {
+            val newTitle = edtTitol.text.toString().trim()
+            if (newTitle.isEmpty()) {
+                Toast.makeText(requireContext(), "El títol no pot estar buit", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+            if (dataFinalSeleccionada == null) {
+                Toast.makeText(requireContext(),
+                    "Cal indicar la data de finalització", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            if (recordatoriSeleccionat != null &&
+                recordatoriSeleccionat!!.toDate().after(dataFinalSeleccionada!!.toDate())
+            ) {
+                Toast.makeText(requireContext(),
+                    "El recordatori no pot ser després de la data de finalització",
+                    Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val updates = hashMapOf<String, Any>(
+                "titol" to newTitle,
+                "descripció" to edtDesc.text.toString().trim(),
+                //"data_inici" to
+                "data_fi" to dataFinalSeleccionada!!,
+                "recordatori" to recordatoriSeleccionat!!
+            )
+
+            docRef.update(updates)
+                .addOnSuccessListener {
+                    Toast.makeText(requireContext(), "Esdeveniment actualitzat", Toast.LENGTH_SHORT)
+                        .show()
+                    dialog.dismiss()
+                    cargareventosytareas(calendarItems, adapter)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
+                        .show()
+                }
+        }
+
+        dialog.show()
     }
+
 
     override fun onDelete(item: CalendarItem) {
         AlertDialog.Builder(requireContext())

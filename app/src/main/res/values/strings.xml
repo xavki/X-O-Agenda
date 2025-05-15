@@ -16,4 +16,11 @@
         <string name="sing_up_button">Registrarse</string>
         <string name="google_button">G Google</string>
 
+
+
+    <string-array name="array_estats_tasca">
+        <item>En Proces</item>
+        <item>Completada</item>
+        <item>Pendiente</item>
+    </string-array>
 </resources>
