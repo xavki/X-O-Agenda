@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">X&amp;O-Agenda</string>
+    <string name="sign_in">Login</string>
+    <string name="titulocalendario">Calendar</string>
+</resources>
