@@ -1,17 +1,23 @@
 package com.institutmarianao.xo_agenda
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MenuActivity : AppCompatActivity() {
+    private val REQ_NOTIF = 123
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var tvName: TextView
@@ -165,6 +171,18 @@ class MenuActivity : AppCompatActivity() {
                      .commit()
              }*/
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQ_NOTIF
+                )
+            }
+        }
 
         }
 
@@ -179,4 +197,21 @@ class MenuActivity : AppCompatActivity() {
                 drawerLayout.closeDrawer(GravityCompat.START)
             }
         }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_NOTIF) {
+            if (grantResults.firstOrNull() != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(
+                    this,
+                    "Sin permiso de notificaciones, los recordatorios no se mostrarán",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
+}
+

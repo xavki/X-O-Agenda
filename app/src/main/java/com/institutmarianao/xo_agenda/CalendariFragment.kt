@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -29,7 +30,11 @@ import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
 import com.institutmarianao.xo_agenda.models.CalendarItem
 import java.util.Locale
 import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
-
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.os.Build
+import android.provider.Settings
 
 class CalendariFragment : Fragment(), OnItemActionListener {
 
@@ -131,9 +136,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         val spinnerEstat = dialogView.findViewById<Spinner>(R.id.spinnerEstat)
         spinnerEstat.visibility = View.GONE
-        val labelEstat  = dialogView.findViewById<TextView>(R.id.textviewEstado)
-        labelEstat.visibility   = View.GONE
-
+        val labelEstat = dialogView.findViewById<TextView>(R.id.textviewEstado)
+        labelEstat.visibility = View.GONE
 
 
         var dataLimitSeleccionada: Timestamp? = null
@@ -242,7 +246,30 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                             .show()
                         dialog.dismiss()
                         cargareventosytareas(calendarItems, adapter)
+                        recordatoriSeleccionat?.let { ts ->
+                            val am = requireContext()
+                                .getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+                            val intent = Intent(requireContext(), ReminderReceiver::class.java)
+                                .apply {
+                                    putExtra("title", titol)
+                                    putExtra("desc", descripcio)
+                                }
+
+                            val requestCode = it.id.hashCode()
+                            val pi = PendingIntent.getBroadcast(
+                                requireContext(),
+                                requestCode,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
+
+                            am.setExactAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                ts.toDate().time,
+                                pi
+                            )
+                        }
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
@@ -265,7 +292,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         val textFinalitzacio = dialogView.findViewById<TextView>(R.id.textviewFinalitzacio)
         val textRecordatori = dialogView.findViewById<TextView>(R.id.textviewRecordatori)
         val buttonGuardar = dialogView.findViewById<Button>(R.id.buttonGuardarEsdeveniment)
-
 
 
         var dataIniciSeleccionada: Timestamp? = null
@@ -414,7 +440,28 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                             .show()
                         dialog.dismiss()
                         cargareventosytareas(calendarItems, adapter)
-
+                        // Programar alarma si hay recordatori
+                        recordatoriSeleccionat?.let { ts ->
+                            val am =
+                                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            val intent =
+                                Intent(requireContext(), ReminderReceiver::class.java).apply {
+                                    putExtra("title", titol)
+                                    putExtra("desc", descripcio)
+                                }
+                            val requestCode = it.id.hashCode()
+                            val pi = PendingIntent.getBroadcast(
+                                requireContext(),
+                                requestCode,
+                                intent,
+                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
+                            am.setExactAndAllowWhileIdle(
+                                AlarmManager.RTC_WAKEUP,
+                                ts.toDate().time,
+                                pi
+                            )
+                        }
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
@@ -637,6 +684,50 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         .show()
                     dialog.dismiss()
                     cargareventosytareas(calendarItems, adapter)
+                    // Primero, cancela la alarma anterior (si existía)
+                    val am =
+                        requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val oldIntent = Intent(requireContext(), ReminderReceiver::class.java)
+                    val oldPi = PendingIntent.getBroadcast(
+                        requireContext(),
+                        item.id.hashCode(),
+                        oldIntent,
+                        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                    )
+                    if (oldPi != null) am.cancel(oldPi)
+
+                    // Luego, programa la nueva
+                    recordatoriSeleccionat?.let { ts ->
+                        val intent = Intent(requireContext(), ReminderReceiver::class.java).apply {
+                            putExtra("title", nuevoTitol)
+                            putExtra("desc", nuevaDesc)
+                        }
+                        val requestCode = item.id.hashCode()
+                        val pi = PendingIntent.getBroadcast(
+                            requireContext(),
+                            requestCode,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            if (!am.canScheduleExactAlarms()) {
+                                // Lanza la pantalla de ajustes para activar exact alarms
+                                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                    // Opcional: abrir directamente los ajustes de tu app
+                                    // setPackage(requireContext().packageName)
+                                }
+                                startActivity(intent)
+                                // Aquí podrías retornar o mostrar un mensaje para que el usuario vuelva
+                                return@addOnSuccessListener
+                            }
+                        }
+                        am.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            ts.toDate().time,
+                            pi
+                        )
+                    }
                 }
                 .addOnFailureListener {
                     Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
@@ -682,11 +773,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             doc.getTimestamp("data_fi")?.also {
                 dataFinalSeleccionada = it
-                txtFinal.text         = fmt.format(it.toDate())
+                txtFinal.text = fmt.format(it.toDate())
             }
             doc.getTimestamp("recordatori")?.also {
                 recordatoriSeleccionat = it
-                txtRecord.text         = fmt.format(it.toDate())
+                txtRecord.text = fmt.format(it.toDate())
             }
             edtTitol.setText(doc.getString("titol"))
             edtDesc.setText(doc.getString("descripció"))
@@ -696,7 +787,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         txtInici.isClickable = false
         txtInici.isFocusable = false
         txtInici.alpha = 0.6f
-
 
 
         // SELECCIO DATA FINALITZACIÓ
@@ -759,22 +849,27 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         // 3) Guardar cambios
         btnGuardar.setOnClickListener {
             val newTitle = edtTitol.text.toString().trim()
+            val newDesc = edtDesc.text.toString().trim()
             if (newTitle.isEmpty()) {
                 Toast.makeText(requireContext(), "El títol no pot estar buit", Toast.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             }
             if (dataFinalSeleccionada == null) {
-                Toast.makeText(requireContext(),
-                    "Cal indicar la data de finalització", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Cal indicar la data de finalització", Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
             if (recordatoriSeleccionat != null &&
                 recordatoriSeleccionat!!.toDate().after(dataFinalSeleccionada!!.toDate())
             ) {
-                Toast.makeText(requireContext(),
+                Toast.makeText(
+                    requireContext(),
                     "El recordatori no pot ser després de la data de finalització",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
             val updates = hashMapOf<String, Any>(
@@ -791,7 +886,52 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         .show()
                     dialog.dismiss()
                     cargareventosytareas(calendarItems, adapter)
+                    // Primero, cancela la alarma anterior (si existía)
+                    val am =
+                        requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val oldIntent = Intent(requireContext(), ReminderReceiver::class.java)
+                    val oldPi = PendingIntent.getBroadcast(
+                        requireContext(),
+                        item.id.hashCode(),
+                        oldIntent,
+                        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+                    )
+                    if (oldPi != null) am.cancel(oldPi)
+
+                    // Luego, programa la nueva
+                    recordatoriSeleccionat?.let { ts ->
+                        val intent = Intent(requireContext(), ReminderReceiver::class.java).apply {
+                            putExtra("title", newTitle)
+                            putExtra("desc", newDesc)
+                        }
+                        val requestCode = item.id.hashCode()
+                        val pi = PendingIntent.getBroadcast(
+                            requireContext(),
+                            requestCode,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        )
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            if (!am.canScheduleExactAlarms()) {
+                                // Lanza la pantalla de ajustes para activar exact alarms
+                                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                    // Opcional: abrir directamente los ajustes de tu app
+                                    // setPackage(requireContext().packageName)
+                                }
+                                startActivity(intent)
+                                // Aquí podrías retornar o mostrar un mensaje para que el usuario vuelva
+                                return@addOnSuccessListener
+                            }
+                        }
+                        am.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            ts.toDate().time,
+                            pi
+                        )
+                    }
                 }
+
                 .addOnFailureListener {
                     Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
                         .show()
