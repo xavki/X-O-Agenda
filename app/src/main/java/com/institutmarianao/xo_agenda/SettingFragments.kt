@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -146,7 +147,10 @@ class SettingFragments : Fragment() {
 
         // VINCULAR CUENTA DE GOOGLE
         txtPairGoogle.setOnClickListener {
-            // Lógica para vincular la cuenta de Google
+            Log.d("SettingFragments", "txtPairGoogle clicked") // Log para verificar el clic
+            // Llama al método de la Activity para iniciar el flujo de Google Calendar
+            //(activity as? MenuActivity)?.startGoogleCalendarSyncFlow()
+                ?: Log.e("SettingFragments", "Hosting Activity is not MenuActivity or is null") // Log de error si no es MenuActivity
         }
 
         // Lógica para eliminar la cuenta
