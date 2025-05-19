@@ -19,6 +19,7 @@
     <string name="channel_name">Alertes de l’Agenda</string>
     <string name="snooze">Posponer</string>
     <string name="channel_description">Es un recordatorio de que tienes algo pendiente</string>
+    <string name="default_title">Recordatorio</string>
 
 
     <string-array name="array_estats_tasca">

@@ -1,11 +1,16 @@
 package com.institutmarianao.xo_agenda
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.view.Gravity
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -13,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -97,6 +104,12 @@ class MenuActivity : AppCompatActivity() {
                         .commit()
                 }
             }
+        handleNavigationIntent(intent)
+
+
+
+
+
             //Pestañas de perfil
             /* val textPerfil: TextView = findViewById(R.id.textPerfil)
              textPerfil.setOnClickListener {
@@ -185,6 +198,53 @@ class MenuActivity : AppCompatActivity() {
         }
 
         }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNavigationIntent(intent)
+    }
+    private fun handleNavigationIntent(intent: Intent) {
+        if (intent.getStringExtra("navigateTo") == "alerts") {
+            // 1) Reemplazas el fragment, como ya tienes:
+            val frag = AlertFragment().apply {
+                arguments = Bundle().apply {
+                    putString("docId", intent.getStringExtra("docId"))
+                }
+            }
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container_fragment, frag)
+                .addToBackStack(null)
+                .commit()
+
+            // 2) Ahora mostramos el “mensaje tipo notificación”:
+            //    - Obtenemos el mensaje de los extras que metiste al crear la notificación:
+            val message = intent.getStringExtra("titol")
+                ?: intent.getStringExtra("descripcio")
+                ?: "Tienes un recordatorio"
+
+            // 1. Crea el snackbar en modo INDEFINITE
+            val root: View = findViewById(R.id.container_fragment)
+            val snack = Snackbar.make(root, message, Snackbar.LENGTH_INDEFINITE)
+
+            // 2. Reposiciónalo al TOP
+            val snackView = snack.view
+            val params = snackView.layoutParams as FrameLayout.LayoutParams
+            params.gravity = Gravity.TOP
+            snackView.layoutParams = params
+
+            // 3. (Opcional) Ponle un botón para cerrar
+            snack.setAction("Cerrar") {
+                snack.dismiss()
+            }
+
+            // 4. Muéstralo…
+            snack.show()
+
+            // 5. …y prográmale un cierre automático tras 5 segundos
+            Handler(Looper.getMainLooper()).postDelayed({
+                snack.dismiss()
+            }, 5000)
+        }
+    }
 
         // Método público para abrir el menú desde cualquier fragmento
         fun openDrawer() {
