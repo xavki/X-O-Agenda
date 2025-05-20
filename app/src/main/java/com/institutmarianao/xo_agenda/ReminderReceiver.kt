@@ -10,6 +10,8 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.institutmarianao.xo_agenda.alertas.AlertRepository
+import com.institutmarianao.xo_agenda.models.AlertItem
 
 class ReminderReceiver : BroadcastReceiver() {
 
@@ -23,7 +25,6 @@ class ReminderReceiver : BroadcastReceiver() {
         createNotificationChannel(ctx)
         val pendingResult = goAsync()
 
-        // 1) Lee docId y tipo
         val docId = intent.getStringExtra("docId")
             ?: return pendingResult.finish()
         val collection = intent.getStringExtra("type")
@@ -31,7 +32,6 @@ class ReminderReceiver : BroadcastReceiver() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
             ?: return pendingResult.finish()
 
-        // 2) Consulta Firestore "en vivo"
         FirebaseFirestore.getInstance()
             .collection("usuarios")
             .document(uid)
@@ -39,16 +39,27 @@ class ReminderReceiver : BroadcastReceiver() {
             .document(docId)
             .get()
             .addOnSuccessListener { doc ->
-                // 3) Usa Elvis para strings no-null
                 val title = doc.getString("titol")
                     ?: ctx.getString(R.string.default_title)
-                val desc  = doc.getString("descripció") ?: ""
+                val desc = doc.getString("descripció") ?: ""
 
-                // 4) Prepara el Intent que abre tu Activity
+                // ———> 1) Guardar la alerta en el repositorio (isRead=false)
+                AlertRepository.addAlert(
+                    ctx,
+                    AlertItem(
+                        id = docId,
+                        title = title,
+                        desc = desc,
+                        isRead = false
+                    )
+                )
+
                 val detailIntent = Intent(ctx, MenuActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     putExtra("navigateTo", "alerts")
-                    putExtra("docId", docId)  // si luego quieres usar el ID
+                    putExtra("docId", docId)
+                    putExtra("titol", title)
+                    putExtra("descripcio", desc)
                 }
                 val detailPI = PendingIntent.getActivity(
                     ctx,
@@ -77,9 +88,9 @@ class ReminderReceiver : BroadcastReceiver() {
 
     private fun createNotificationChannel(ctx: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name        = ctx.getString(R.string.channel_name)
+            val name = ctx.getString(R.string.channel_name)
             val description = ctx.getString(R.string.channel_description)
-            val importance  = NotificationManager.IMPORTANCE_HIGH
+            val importance = NotificationManager.IMPORTANCE_HIGH
 
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 this.description = description

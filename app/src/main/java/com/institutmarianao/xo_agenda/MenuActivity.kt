@@ -1,30 +1,27 @@
 package com.institutmarianao.xo_agenda
 
 import android.Manifest
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import android.view.Gravity
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.FragmentManager
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.institutmarianao.xo_agenda.alertas.NavigationIntentHandler
+import com.institutmarianao.xo_agenda.alertas.PermisosHandler
 
 class MenuActivity : AppCompatActivity() {
-    private val REQ_NOTIF = 123
+
+    companion object {
+        const val REQ_NOTIF = 1234
+    }
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var tvName: TextView
@@ -41,12 +38,15 @@ class MenuActivity : AppCompatActivity() {
         tvName = findViewById(R.id.tvUserName)
         tvEmail = findViewById(R.id.tvUserEmail)
 
-
-        // Cargar fragmento inicial
+        val navigateTo = intent.getStringExtra("navigateTo")
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container_fragment, ProfileFragment())
-                .commit()
+            if (navigateTo == "alerts") {
+                NavigationIntentHandler.handleNavigationIntent(this, intent)
+            } else {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container_fragment, ProfileFragment())
+                    .commit()
+            }
         }
 
         val ivClose: ImageView = findViewById(R.id.ivClose)
@@ -82,113 +82,9 @@ class MenuActivity : AppCompatActivity() {
                 }
         }
 
-
-            // Define un mapa de View IDs a lambdas que devuelven el Fragment correspondiente
-            val menuMap = mapOf(
-                R.id.textPerfil to ::ProfileFragment,
-                R.id.profileicon to ::ProfileFragment,
-                R.id.textCalendario to ::CalendariFragment,
-                R.id.calendaricon to ::CalendariFragment,
-                R.id.textAlertas to ::AlertFragment,
-                R.id.alertasicon to ::AlertFragment,
-                R.id.settingsicon to ::SettingFragments
-            )
-
-            // En onCreate(), en lugar de cada listener por separado:
-            menuMap.forEach { (viewId, fragmentCtor) ->
-                findViewById<View>(viewId).setOnClickListener {
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.container_fragment, fragmentCtor())
-                        .addToBackStack(null)
-                        .commit()
-                }
-            }
-        handleNavigationIntent(intent)
-
-
-
-
-
-            //Pestañas de perfil
-            /* val textPerfil: TextView = findViewById(R.id.textPerfil)
-             textPerfil.setOnClickListener {
-                 // Cierra el menú lateral
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 // Navegar al ProfileFragment
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, ProfileFragment())
-                     .addToBackStack(null)  // Esto es opcional, pero permite volver al fragmento anterior
-                     .commit()
-             }
-
-             val profileIcon: ImageView = findViewById(R.id.profileicon)
-             profileIcon.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, ProfileFragment())
-                     .addToBackStack(null)
-                     .commit()
-             }
-
-
-             //Pestañas de calendario
-             val textCalendario: TextView = findViewById(R.id.textCalendario)
-             textCalendario.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, CalendariFragment())
-                     .addToBackStack(null)
-                     .commit()
-             }
-
-
-             val calendaricon: ImageView = findViewById(R.id.calendaricon)
-             calendaricon.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, CalendariFragment())
-                     .addToBackStack(null)
-                     .commit()
-             }
-
-
-             //Pestaña de alertas
-             val alertasicon: ImageView = findViewById(R.id.alertasicon)
-             alertasicon.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, AlertFragment())
-                     .addToBackStack(null)
-                     .commit()
-             }
-
-
-             val textAlertas: TextView = findViewById(R.id.textAlertas)
-             textAlertas.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, AlertFragment())
-                     .addToBackStack(null)
-                     .commit()
-             }
-
-
-             //Pestaña de ajustes
-             val settingsicon: ImageView = findViewById(R.id.settingsicon)
-             settingsicon.setOnClickListener {
-                 drawerLayout.closeDrawer(GravityCompat.START)
-                 supportFragmentManager.beginTransaction()
-                     .replace(R.id.container_fragment, SettingFragments())
-                     .addToBackStack(null)
-                     .commit()
-             }*/
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
             ) {
                 requestPermissions(
                     arrayOf(Manifest.permission.POST_NOTIFICATIONS),
@@ -197,81 +93,51 @@ class MenuActivity : AppCompatActivity() {
             }
         }
 
-        }
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        handleNavigationIntent(intent)
-    }
-    private fun handleNavigationIntent(intent: Intent) {
-        if (intent.getStringExtra("navigateTo") == "alerts") {
-            // 1) Reemplazas el fragment, como ya tienes:
-            val frag = AlertFragment().apply {
-                arguments = Bundle().apply {
-                    putString("docId", intent.getStringExtra("docId"))
-                }
-            }
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.container_fragment, frag)
-                .addToBackStack(null)
-                .commit()
+        // Define un mapa de View IDs a lambdas que devuelven el Fragment correspondiente
+        val menuMap = mapOf(
+            R.id.textPerfil to ::ProfileFragment,
+            R.id.profileicon to ::ProfileFragment,
+            R.id.textCalendario to ::CalendariFragment,
+            R.id.calendaricon to ::CalendariFragment,
+            R.id.textAlertas to ::AlertFragment,
+            R.id.alertasicon to ::AlertFragment,
+            R.id.settingsicon to ::SettingFragments
+        )
 
-            // 2) Ahora mostramos el “mensaje tipo notificación”:
-            //    - Obtenemos el mensaje de los extras que metiste al crear la notificación:
-            val message = intent.getStringExtra("titol")
-                ?: intent.getStringExtra("descripcio")
-                ?: "Tienes un recordatorio"
-
-            // 1. Crea el snackbar en modo INDEFINITE
-            val root: View = findViewById(R.id.container_fragment)
-            val snack = Snackbar.make(root, message, Snackbar.LENGTH_INDEFINITE)
-
-            // 2. Reposiciónalo al TOP
-            val snackView = snack.view
-            val params = snackView.layoutParams as FrameLayout.LayoutParams
-            params.gravity = Gravity.TOP
-            snackView.layoutParams = params
-
-            // 3. (Opcional) Ponle un botón para cerrar
-            snack.setAction("Cerrar") {
-                snack.dismiss()
-            }
-
-            // 4. Muéstralo…
-            snack.show()
-
-            // 5. …y prográmale un cierre automático tras 5 segundos
-            Handler(Looper.getMainLooper()).postDelayed({
-                snack.dismiss()
-            }, 5000)
-        }
-    }
-
-        // Método público para abrir el menú desde cualquier fragmento
-        fun openDrawer() {
-            drawerLayout.openDrawer(GravityCompat.START)
-        }
-
-        // (Opcional) cerrar drawer si está abierto
-        fun closeDrawerIfOpen() {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+        // En onCreate(), en lugar de cada listener por separado:
+        menuMap.forEach { (viewId, fragmentCtor) ->
+            findViewById<View>(viewId).setOnClickListener {
                 drawerLayout.closeDrawer(GravityCompat.START)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container_fragment, fragmentCtor())
+                    .addToBackStack(null)
+                    .commit()
             }
         }
+
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQ_NOTIF) {
-            if (grantResults.firstOrNull() != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(
-                    this,
-                    "Sin permiso de notificaciones, los recordatorios no se mostrarán",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+        PermisosHandler.handlePermissionsResult(this, requestCode, grantResults)
+    }
+
+
+    // Método público para abrir el menú desde cualquier fragmento
+    fun openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START)
+    }
+
+    // (Opcional) cerrar drawer si está abierto
+    fun closeDrawerIfOpen() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
         }
     }
+
 }
 
