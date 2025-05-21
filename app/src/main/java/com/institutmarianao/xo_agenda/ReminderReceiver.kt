@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,12 +26,22 @@ class ReminderReceiver : BroadcastReceiver() {
         createNotificationChannel(ctx)
         val pendingResult = goAsync()
 
+        // 1) Null-checks sin return sobre una expresión
         val docId = intent.getStringExtra("docId")
-            ?: return pendingResult.finish()
+        if (docId == null) {
+            pendingResult.finish()
+            return
+        }
         val collection = intent.getStringExtra("type")
-            ?: return pendingResult.finish()
+        if (collection == null) {
+            pendingResult.finish()
+            return
+        }
         val uid = FirebaseAuth.getInstance().currentUser?.uid
-            ?: return pendingResult.finish()
+        if (uid == null) {
+            pendingResult.finish()
+            return
+        }
 
         FirebaseFirestore.getInstance()
             .collection("usuarios")
@@ -39,18 +50,32 @@ class ReminderReceiver : BroadcastReceiver() {
             .document(docId)
             .get()
             .addOnSuccessListener { doc ->
+                // Usa la misma 'collection' que ya comprobaste arriba
                 val title = doc.getString("titol")
                     ?: ctx.getString(R.string.default_title)
                 val desc = doc.getString("descripció") ?: ""
 
-                // ———> 1) Guardar la alerta en el repositorio (isRead=false)
+                // Si por algún motivo aquí quisieras volver a salir:
+                // if (collection.isBlank()) { pendingResult.finish(); return@addOnSuccessListener }
+
+                val typeKey = collection.lowercase()
+                val (alertType, extraInfo) = when (typeKey) {
+                    "tasques" -> "tasca" to (doc.getString("estat") ?: "Sense estat")
+                    "esdeveniments" -> "evento" to (doc.getString("dataInici")
+                        ?: "Data desconeguda")
+
+                    else -> "desconegut" to null
+                }
+
                 AlertRepository.addAlert(
                     ctx,
                     AlertItem(
                         id = docId,
                         title = title,
                         desc = desc,
-                        isRead = false
+                        isRead = false,
+                        type = alertType,
+                        extraInfo = extraInfo
                     )
                 )
 
@@ -60,6 +85,8 @@ class ReminderReceiver : BroadcastReceiver() {
                     putExtra("docId", docId)
                     putExtra("titol", title)
                     putExtra("descripcio", desc)
+                    putExtra("alertType", alertType)
+                    putExtra("extraInfo", extraInfo)
                 }
                 val detailPI = PendingIntent.getActivity(
                     ctx,
@@ -67,8 +94,32 @@ class ReminderReceiver : BroadcastReceiver() {
                     detailIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
+                val notifText = when (alertType) {
+                    "evento" -> "Inici: $extraInfo"
+                    "tasca" -> "Estat: $extraInfo"
+                    else -> desc
+                }
 
-                val notif = NotificationCompat.Builder(ctx, CHANNEL_ID)
+                val bigText = when (alertType) {
+                    "evento" -> "$desc\n\n📅 Inici: $extraInfo"
+                    "tasca" -> "$desc\n\n📌 Estat: $extraInfo"
+                    else -> desc
+                }
+
+                val notifBuilder = NotificationCompat.Builder(ctx, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.logoxajo)
+                    .setContentTitle(title)
+                    .setContentText(notifText)
+                    .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+                    .setContentIntent(detailPI)
+                    .setAutoCancel(true)
+
+                val notif = notifBuilder.build()
+
+                (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                    .notify(docId.hashCode(), notif)
+
+                /*val notif = NotificationCompat.Builder(ctx, CHANNEL_ID)
                     .setSmallIcon(R.drawable.logoxajo)
                     .setContentTitle(title)
                     .setContentText(desc)
@@ -77,14 +128,16 @@ class ReminderReceiver : BroadcastReceiver() {
                     .build()
 
                 (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(docId.hashCode(), notif)
+                    .notify(docId.hashCode(), notif)*/
 
                 pendingResult.finish()
             }
+
             .addOnFailureListener {
                 pendingResult.finish()
             }
     }
+
 
     private fun createNotificationChannel(ctx: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

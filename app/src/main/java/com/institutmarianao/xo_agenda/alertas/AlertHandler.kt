@@ -15,14 +15,20 @@ import androidx.appcompat.app.AppCompatActivity
 
 object NavigationIntentHandler {
 
+
     fun handleNavigationIntent(activity: AppCompatActivity, intent: Intent) {
         if (intent.getStringExtra("navigateTo") == "alerts") {
-            // 1) Reemplazar el fragment
+            // 1) Lee alertType y extraInfo del Intent
+            val alertType = intent.getStringExtra("alertType")
+            val extraInfo = intent.getStringExtra("extraInfo")
+
             val frag = AlertFragment().apply {
                 arguments = Bundle().apply {
-                    putString("docId", intent.getStringExtra("docId"))
-                    putString("titol", intent.getStringExtra("titol"))
+                    putString("docId",      intent.getStringExtra("docId"))
+                    putString("titol",      intent.getStringExtra("titol"))
                     putString("descripcio", intent.getStringExtra("descripcio"))
+                    putString("alertType",  alertType)    // ← Aquí debe llegar no-null
+                    putString("extraInfo",  extraInfo)
                 }
             }
             activity.supportFragmentManager.beginTransaction()
@@ -30,31 +36,28 @@ object NavigationIntentHandler {
                 .addToBackStack(null)
                 .commit()
 
-            // 2) Obtener el mensaje
-            val message = intent.getStringExtra("titol")
-                ?: intent.getStringExtra("descripcio")
-                ?: "Tienes un recordatorio"
+            // 3) Construir mensaje dinámico
+            val title = intent.getStringExtra("titol").orEmpty()
+            val desc = intent.getStringExtra("descripcio").orEmpty()
+            val message = when (alertType) {
+                "evento" -> "$title\n$desc\n📅 Inici: ${extraInfo.orEmpty()}"
+                "tasca" -> "$title\n$desc\n📌 Estat: ${extraInfo.orEmpty()}"
+                else -> title.ifEmpty { desc.ifEmpty { "Tienes un recordatorio" } }
+            }
 
-            // 3) Mostrar la alerta con Snackbar
+            // 4) Mostrar Snackbar arriba
             val root: View = activity.findViewById(R.id.container_fragment)
             val snack = Snackbar.make(root, message, Snackbar.LENGTH_INDEFINITE)
-
-            // Ponerlo arriba
-            val snackView = snack.view
-            val params = snackView.layoutParams as FrameLayout.LayoutParams
-            params.gravity = Gravity.TOP
-            snackView.layoutParams = params
-
-            // Botón “Cerrar”
+            val snackView = snack.view as FrameLayout
+            (snackView.layoutParams as FrameLayout.LayoutParams).apply {
+                gravity = Gravity.TOP
+                snackView.layoutParams = this
+            }
             snack.setAction("Cerrar") { snack.dismiss() }
-
-            // Mostrar + auto-dismiss en 5s
             snack.show()
-            Handler(Looper.getMainLooper()).postDelayed({
-                snack.dismiss()
-            }, 5000)
+
+            // 5) Auto-dismiss en 5s
+            Handler(Looper.getMainLooper()).postDelayed({ snack.dismiss() }, 5000)
         }
     }
-
-
 }

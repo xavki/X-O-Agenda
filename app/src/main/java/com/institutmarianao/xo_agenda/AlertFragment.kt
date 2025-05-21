@@ -48,16 +48,30 @@ class AlertFragment : Fragment() {
         //    - Si vengo de notificación, uso sólo esa alerta
         //    - Si vengo del menú, cargo todas las pendientes
         arguments?.let { args ->
-            val id = args.getString("docId")!!
-            val title = args.getString("titol")!!
-            val desc = args.getString("descripcio")!!
-            alerts = mutableListOf(AlertItem(id, title, desc, isRead(id)))
+            val id        = args.getString("docId")!!
+            val title     = args.getString("titol")!!
+            val desc      = args.getString("descripcio")!!
+            val type      = args.getString("alertType")    // puede ser "evento" o "tasca"
+            val extraInfo = args.getString("extraInfo")    // fechaInici o estat
+
+            // Creamos la alerta **con** type y extraInfo
+            alerts = mutableListOf(
+                AlertItem(
+                    id        = id,
+                    title     = title,
+                    desc      = desc,
+                    isRead    = isRead(id),
+                    type      = type,
+                    extraInfo = extraInfo
+                )
+            )
         } ?: run {
-            // Cargo todas desde el repositorio y marco su estado
             alerts = AlertRepository
                 .getAllPendingAlerts(requireContext())
                 .onEach { it.isRead = isRead(it.id) }
         }
+
+
 
         // 3) Preparo el adapter
         adapter = AlertsAdapter(requireContext(), alerts)
@@ -95,7 +109,17 @@ class AlertFragment : Fragment() {
         val root = view ?: return
         alerts.firstOrNull { !it.isRead }?.let { item ->
             snack?.dismiss()
-            val msg = "${item.title}\n${item.desc}"
+            val builder = StringBuilder()
+            builder.append(item.title).append("\n")
+            builder.append(item.desc)
+            item.extraInfo?.let { info ->
+                when (item.type) {
+                    "evento" -> builder.append("\n\n📅 Inici: ").append(info)
+                    "tasca"  -> builder.append("\n\n📌 Estat: ").append(info)
+                    else -> {}
+                }
+            }
+            val msg = builder.toString()
             snack = Snackbar
                 .make(root, msg, Snackbar.LENGTH_INDEFINITE)
                 .setAction("Marcar leído") {
