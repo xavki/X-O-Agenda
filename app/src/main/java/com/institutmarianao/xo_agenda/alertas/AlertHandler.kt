@@ -18,17 +18,21 @@ object NavigationIntentHandler {
 
     fun handleNavigationIntent(activity: AppCompatActivity, intent: Intent) {
         if (intent.getStringExtra("navigateTo") == "alerts") {
-            // 1) Lee alertType y extraInfo del Intent
+            // 1) Lee los extras que pusiste en ReminderReceiver
+            val docId = intent.getStringExtra("docId")
+            val title = intent.getStringExtra("titol").orEmpty()
+            val desc = intent.getStringExtra("descripcio").orEmpty()
             val alertType = intent.getStringExtra("alertType")
             val extraInfo = intent.getStringExtra("extraInfo")
 
+            // 2) Pásalos al fragment en el Bundle
             val frag = AlertFragment().apply {
                 arguments = Bundle().apply {
-                    putString("docId",      intent.getStringExtra("docId"))
-                    putString("titol",      intent.getStringExtra("titol"))
-                    putString("descripcio", intent.getStringExtra("descripcio"))
-                    putString("alertType",  alertType)    // ← Aquí debe llegar no-null
-                    putString("extraInfo",  extraInfo)
+                    putString("docId", docId)
+                    putString("titol", title)
+                    putString("descripcio", desc)
+                    putString("alertType", alertType)
+                    putString("extraInfo", extraInfo)
                 }
             }
             activity.supportFragmentManager.beginTransaction()
@@ -36,27 +40,22 @@ object NavigationIntentHandler {
                 .addToBackStack(null)
                 .commit()
 
-            // 3) Construir mensaje dinámico
-            val title = intent.getStringExtra("titol").orEmpty()
-            val desc = intent.getStringExtra("descripcio").orEmpty()
+            // 3) Construye el mensaje según el tipo
             val message = when (alertType) {
                 "evento" -> "$title\n$desc\n📅 Inici: ${extraInfo.orEmpty()}"
                 "tasca" -> "$title\n$desc\n📌 Estat: ${extraInfo.orEmpty()}"
                 else -> title.ifEmpty { desc.ifEmpty { "Tienes un recordatorio" } }
             }
 
-            // 4) Mostrar Snackbar arriba
-            val root: View = activity.findViewById(R.id.container_fragment)
+            // 4) Muestra el Snackbar arriba
+            val root = activity.findViewById<View>(R.id.container_fragment)
             val snack = Snackbar.make(root, message, Snackbar.LENGTH_INDEFINITE)
-            val snackView = snack.view as FrameLayout
-            (snackView.layoutParams as FrameLayout.LayoutParams).apply {
+            (snack.view.layoutParams as FrameLayout.LayoutParams).apply {
                 gravity = Gravity.TOP
-                snackView.layoutParams = this
+                snack.view.layoutParams = this
             }
             snack.setAction("Cerrar") { snack.dismiss() }
             snack.show()
-
-            // 5) Auto-dismiss en 5s
             Handler(Looper.getMainLooper()).postDelayed({ snack.dismiss() }, 5000)
         }
     }
