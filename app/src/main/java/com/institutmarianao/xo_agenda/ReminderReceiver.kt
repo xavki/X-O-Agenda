@@ -17,31 +17,22 @@ class ReminderReceiver : BroadcastReceiver() {
 
     companion object {
         const val CHANNEL_ID = "XO_AGENDA_CHANNEL"
-        const val ACTION_SNOOZE = "posponer"
-        const val EXTRA_NOTIFICATION_ID = "notification_id"
     }
 
     override fun onReceive(ctx: Context, intent: Intent) {
         createNotificationChannel(ctx)
         val pendingResult = goAsync()
 
-        // 1) Null-checks sin return sobre una expresión
+        // 1) Extraemos docId y collection (evento/tasca)
         val docId = intent.getStringExtra("docId")
-        if (docId == null) {
-            pendingResult.finish()
-            return
-        }
         val collection = intent.getStringExtra("type")
-        if (collection == null) {
-            pendingResult.finish()
-            return
-        }
         val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid == null) {
+        if (docId == null || collection == null || uid == null) {
             pendingResult.finish()
             return
         }
 
+        // 2) Leemos el documento Firestore
         FirebaseFirestore.getInstance()
             .collection("usuarios")
             .document(uid)
@@ -49,43 +40,53 @@ class ReminderReceiver : BroadcastReceiver() {
             .document(docId)
             .get()
             .addOnSuccessListener { doc ->
-                // Usa la misma 'collection' que ya comprobaste arriba
-                val title = doc.getString("titol")
-                    ?: ctx.getString(R.string.default_title)
-                val desc = doc.getString("descripció") ?: ""
+                // 3) Título “crudo” (sin fallback)
+                val rawTitle = doc.getString("titol")
+                if (rawTitle == null) {
+                    pendingResult.finish()
+                    return@addOnSuccessListener
+                }
+                // 4) Descripción
+                val rawDesc = doc.getString("descripció") ?: ""
+                // 5) ExtraInfo (por ejemplo fecha de inicio)
+                val rawExtra = doc.getDate("data_inici")?.toString() ?: ""
 
-                // Si por algún motivo aquí quisieras volver a salir:
-                // if (collection.isBlank()) { pendingResult.finish(); return@addOnSuccessListener }
-
-                val typeKey = collection.lowercase()
-                val (alertType, extraInfo) = when (typeKey) {
-                    "tasques" -> "tasca" to (doc.getString("estat") ?: "Sense estat")
-                    "esdeveniments" -> "evento" to (doc.getString("dataInici")
-                        ?: "Data desconeguda")
-
-                    else -> "desconegut" to null
+                // 6) Decidimos tipo de alerta según la colección
+                val alertType = when (collection) {
+                    "esdeveniments" -> "evento"
+                    "tasques"        -> "tasca"
+                    else             -> "otro"
                 }
 
-                AlertRepository.addAlert(
-                    ctx,
-                    AlertItem(
-                        id = docId,
-                        title = title,
-                        desc = desc,               // descripción limpia
-                        isRead = false,
-                        type = alertType,           // ahora sí sabemos que es un evento
-                        extraInfo = extraInfo        // aquí la fecha de inicio
-                    )
+                // 7) Construimos y guardamos la alerta real
+                // Así encaja con tu data class
+                val item = AlertItem(
+                    id       = docId,
+                    title    = rawTitle,
+                    desc     = rawDesc,            // coincide con “val desc: String”
+                    isRead   = false,              // por defecto no leído
+                    type     = alertType,          // tu “evento” o “tasca”
+                    extraInfo= rawExtra            // la fecha u otra info
                 )
 
+                AlertRepository.addAlert(ctx, item)
+
+                // 8) Preparamos los datos para la notificación
+                val title     = item.title
+                val desc      = item.desc
+                val extraInfo = item.extraInfo
+
+                val notifText = when (alertType) {
+                    "evento" -> "Descripcion: $desc"
+                    "tasca"  -> "Descripcion: $desc"
+                    else     -> desc
+                }
+
+
+                // 9) Intent genérico: solo navigatingTo=alerts
                 val detailIntent = Intent(ctx, MenuActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     putExtra("navigateTo", "alerts")
-                    putExtra("docId", docId)
-                    putExtra("titol", title)
-                    putExtra("descripcio", desc)
-                    putExtra("alertType", alertType)
-                    putExtra("extraInfo", extraInfo)
                 }
                 val detailPI = PendingIntent.getActivity(
                     ctx,
@@ -93,63 +94,35 @@ class ReminderReceiver : BroadcastReceiver() {
                     detailIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
-                val notifText = when (alertType) {
-                    "evento" -> "Inici: $extraInfo"
-                    "tasca" -> "Estat: $extraInfo"
-                    else -> desc
-                }
 
-                val bigText = when (alertType) {
-                    "evento" -> "$desc\n\n📅 Inici: $extraInfo"
-                    "tasca" -> "$desc\n\n📌 Estat: $extraInfo"
-                    else -> desc
-                }
-
+                // 10) Construcción y envío de la notificación
                 val notifBuilder = NotificationCompat.Builder(ctx, CHANNEL_ID)
                     .setSmallIcon(R.drawable.logoxajo)
                     .setContentTitle(title)
                     .setContentText(notifText)
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
                     .setContentIntent(detailPI)
                     .setAutoCancel(true)
 
-                val notif = notifBuilder.build()
-
                 (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(docId.hashCode(), notif)
-
-                /*val notif = NotificationCompat.Builder(ctx, CHANNEL_ID)
-                    .setSmallIcon(R.drawable.logoxajo)
-                    .setContentTitle(title)
-                    .setContentText(desc)
-                    .setContentIntent(detailPI)
-                    .setAutoCancel(true)
-                    .build()
-
-                (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                    .notify(docId.hashCode(), notif)*/
+                    .notify(docId.hashCode(), notifBuilder.build())
 
                 pendingResult.finish()
             }
-
             .addOnFailureListener {
                 pendingResult.finish()
             }
     }
 
-
     private fun createNotificationChannel(ctx: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = ctx.getString(R.string.channel_name)
+            val name        = ctx.getString(R.string.channel_name)
             val description = ctx.getString(R.string.channel_description)
-            val importance = NotificationManager.IMPORTANCE_HIGH
-
-            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+            val importance  = NotificationManager.IMPORTANCE_HIGH
+            val channel     = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 this.description = description
             }
-
-            val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            nm.createNotificationChannel(channel)
+            (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(channel)
         }
     }
 }

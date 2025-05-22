@@ -1,13 +1,19 @@
 package com.institutmarianao.xo_agenda
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.app.PendingIntent
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,15 +33,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
+import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
 import com.institutmarianao.xo_agenda.models.CalendarItem
 import java.util.Locale
-import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 
 class CalendariFragment : Fragment(), OnItemActionListener {
 
@@ -94,7 +94,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             cargareventosytareas(calendarItems, adapter, selectedDate)
 
 
-
         }
 
 
@@ -126,6 +125,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         }
         return view
     }
+
     private fun cargareventosytareas(
         calendarItems: MutableList<CalendarItem>,
         adapter: CalendarItemAdapter,
@@ -322,21 +322,23 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                     .document(uid)
                     .collection("tasques")
                     .add(tasca)
-                    .addOnSuccessListener {docRef ->
+                    .addOnSuccessListener { docRef ->
                         Toast.makeText(requireContext(), "Tasca guardada", Toast.LENGTH_SHORT)
                             .show()
                         dialog.dismiss()
                         cargareventosytareas(calendarItems, adapter, selectedDate)
                         recordatoriSeleccionat?.let { ts ->
-                            val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            val am =
+                                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
                             // 1) Crea el Intent y el PendingIntent (pi)
-                            val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
-                                putExtra("docId", docRef.id)
-                                putExtra("type", "tasques")
-                                putExtra("titol", titol)
-                                putExtra("descripcio", descripcio)
-                            }
+                            val reminderIntent =
+                                Intent(requireContext(), ReminderReceiver::class.java).apply {
+                                    putExtra("docId", docRef.id)
+                                    putExtra("type", "tasques")
+                                    putExtra("titol", titol)
+                                    putExtra("descripcio", descripcio)
+                                }
                             val requestCode = docRef.id.hashCode()
                             val pi = PendingIntent.getBroadcast(
                                 requireContext(),
@@ -349,10 +351,12 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                 if (!am.canScheduleExactAlarms()) {
                                     // Lleva al usuario a ajustes para dar permiso
-                                    val settingsIntent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = Uri.parse("package:${requireContext().packageName}")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
+                                    val settingsIntent =
+                                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                            data =
+                                                Uri.parse("package:${requireContext().packageName}")
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
                                     requireContext().startActivity(settingsIntent)
                                     return@let   // sin programar hasta que acepte
                                 }
@@ -537,15 +541,17 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         cargareventosytareas(calendarItems, adapter, selectedDate)
                         // Programar alarma si hay recordatori
                         recordatoriSeleccionat?.let { ts ->
-                            val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            val am =
+                                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
                             // 1) Crea el Intent y el PendingIntent (pi)
                             val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
                                 putExtra("docId", docRef.id)
-                                putExtra("type", "tasques")
+                                putExtra("type", "esdeveniments")
                                 putExtra("titol", titol)
                                 putExtra("descripcio", descripcio)
                             }
+
                             val requestCode = docRef.id.hashCode()
                             val pi = PendingIntent.getBroadcast(
                                 requireContext(),
@@ -558,10 +564,12 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                 if (!am.canScheduleExactAlarms()) {
                                     // Lleva al usuario a ajustes para dar permiso
-                                    val settingsIntent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = Uri.parse("package:${requireContext().packageName}")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
+                                    val settingsIntent =
+                                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                            data =
+                                                Uri.parse("package:${requireContext().packageName}")
+                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        }
                                     requireContext().startActivity(settingsIntent)
                                     return@let   // sin programar hasta que acepte
                                 }
@@ -762,15 +770,18 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
                     // Luego, programa la nueva
                     recordatoriSeleccionat?.let { ts ->
-                        val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val am =
+                            requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
                         // 1) Crea el Intent y el PendingIntent (pi)
                         val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
                             putExtra("docId", docRef.id)
                             putExtra("type", "tasques")
-                            putExtra("titol", newTitol)
+                            putExtra("titol", newTitol)    // ahora sí existe
                             putExtra("descripcio", newDesc)
                         }
+
+
                         val requestCode = docRef.id.hashCode()
                         val pi = PendingIntent.getBroadcast(
                             requireContext(),
@@ -783,10 +794,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             if (!am.canScheduleExactAlarms()) {
                                 // Lleva al usuario a ajustes para dar permiso
-                                val settingsIntent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                    data = Uri.parse("package:${requireContext().packageName}")
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                }
+                                val settingsIntent =
+                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                        data = Uri.parse("package:${requireContext().packageName}")
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
                                 requireContext().startActivity(settingsIntent)
                                 return@let   // sin programar hasta que acepte
                             }
@@ -971,15 +983,17 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
                     // Luego, programa la nueva
                     recordatoriSeleccionat?.let { ts ->
-                        val am = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                        val am =
+                            requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
                         // 1) Crea el Intent y el PendingIntent (pi)
                         val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
                             putExtra("docId", docRef.id)
-                            putExtra("type", "tasques")
+                            putExtra("type", "esdeveniments")  // ← ahora coincide con tu colección de eventos
                             putExtra("titol", newTitle)
                             putExtra("descripcio", newDesc)
                         }
+
                         val requestCode = docRef.id.hashCode()
                         val pi = PendingIntent.getBroadcast(
                             requireContext(),
@@ -992,10 +1006,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             if (!am.canScheduleExactAlarms()) {
                                 // Lleva al usuario a ajustes para dar permiso
-                                val settingsIntent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                    data = Uri.parse("package:${requireContext().packageName}")
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                }
+                                val settingsIntent =
+                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                        data = Uri.parse("package:${requireContext().packageName}")
+                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                    }
                                 requireContext().startActivity(settingsIntent)
                                 return@let   // sin programar hasta que acepte
                             }

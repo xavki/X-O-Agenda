@@ -48,30 +48,31 @@ class AlertFragment : Fragment() {
         //    - Si vengo de notificación, uso sólo esa alerta
         //    - Si vengo del menú, cargo todas las pendientes
         arguments?.let { args ->
-            val id        = args.getString("docId")!!
-            val title     = args.getString("titol")!!
-            val desc      = args.getString("descripcio")!!
-            val type      = args.getString("alertType")    // puede ser "evento" o "tasca"
+            val id = args.getString("docId")!!
+            val title = args.getString("titol")!!
+            val desc = args.getString("descripcio")!!
+            val type = args.getString("alertType")    // puede ser "evento" o "tasca"
             val extraInfo = args.getString("extraInfo")    // fechaInici o estat
 
             // Creamos la alerta **con** type y extraInfo
             alerts = mutableListOf(
                 AlertItem(
-                    id        = id,
-                    title     = title,
-                    desc      = desc,
-                    isRead    = isRead(id),
-                    type      = type,
+                    id = id,
+                    title = title,
+                    desc = desc,
+                    isRead = isRead(id),
+                    type = type,
                     extraInfo = extraInfo
                 )
             )
         } ?: run {
             alerts = AlertRepository
                 .getAllPendingAlerts(requireContext())
-                .onEach { it.isRead = isRead(it.id) }
+                .filter { !isRead(it.id) }        // sólo sin leer
+                .map { it.apply { isRead = false } }
+                .toMutableList()
+            adapter = AlertsAdapter(requireContext(), alerts)
         }
-
-
 
         // 3) Preparo el adapter
         adapter = AlertsAdapter(requireContext(), alerts)
@@ -83,20 +84,24 @@ class AlertFragment : Fragment() {
                 val id = alerts[pos].id
                 // 1) Persiste en prefs
                 prefs.edit().putBoolean(id, true).apply()
-                // 2) Actualiza el adapter
-                (adapter as AlertsAdapter).markRead(pos)
-                // 3) (Opcional) quita del repositorio
+                // 2) Quita del repositorio
                 AlertRepository.removeAlert(requireContext(), id)
+                // 3) Elimina el ítem de la lista en memoria
+                alerts.removeAt(pos)
+                // 4) Notifica al adapter para refrescar
+                (adapter as AlertsAdapter).notifyDataSetChanged()
             }
         }
+
 
         // 5) Botón “Marcar todas como leídas”
         view.findViewById<ImageView>(R.id.btnMarkAllRead).setOnClickListener {
             alerts.forEach {
-                alerts.forEach { prefs.edit().putBoolean(it.id, true).apply() }
-                adapter.markAllRead()
+                prefs.edit().putBoolean(it.id, true).apply()
+                AlertRepository.removeAlert(requireContext(), it.id)
             }
-            adapter.markAllRead()
+            alerts.clear()
+            adapter.notifyDataSetChanged()
         }
 
         return view
@@ -115,7 +120,7 @@ class AlertFragment : Fragment() {
             item.extraInfo?.let { info ->
                 when (item.type) {
                     "evento" -> builder.append("\n\n📅 Inici: ").append(info)
-                    "tasca"  -> builder.append("\n\n📌 Estat: ").append(info)
+                    "tasca" -> builder.append("\n\n📌 Estat: ").append(info)
                     else -> {}
                 }
             }

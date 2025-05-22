@@ -39,16 +39,9 @@ class AlertsAdapter(
         val tvDesc = view.findViewById<TextView>(R.id.tvAlertDesc)
         val ivStatus = view.findViewById<ImageView>(R.id.ivStatus)
 
-        val tvExtra = view.findViewById<TextView>(R.id.tvAlertExtra)
-        tvExtra.visibility = View.GONE
+        // Siempre oculto, sólo título y descripción
+        view.findViewById<TextView>(R.id.tvAlertExtra)?.visibility = View.GONE
 
-        item.type?.let {
-            tvExtra.visibility = View.VISIBLE
-            when (it) {
-                "evento" -> tvExtra.text = "📅 Inici: ${item.extraInfo}"
-                "tasca"  -> tvExtra.text = "📌 Estat: ${item.extraInfo}"
-            }
-        }
 
 
         // Texto en negrita si no leído, normal si leído
