@@ -34,7 +34,7 @@
             android:layout_marginTop="4dp"
             android:textSize="13sp"
             android:textColor="#666666"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </LinearLayout>
 
     <ImageView

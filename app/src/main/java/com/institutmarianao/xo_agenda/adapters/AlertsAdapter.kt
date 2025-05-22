@@ -46,7 +46,7 @@ class AlertsAdapter(
             tvExtra.visibility = View.VISIBLE
             when (it) {
                 "evento" -> tvExtra.text = "📅 Inici: ${item.extraInfo}"
-                "tasca" -> tvExtra.text = "📌 Estat: ${item.extraInfo}"
+                "tasca"  -> tvExtra.text = "📌 Estat: ${item.extraInfo}"
             }
         }
 

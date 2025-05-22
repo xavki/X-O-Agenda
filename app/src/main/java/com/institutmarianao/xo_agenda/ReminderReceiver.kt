@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -72,10 +71,10 @@ class ReminderReceiver : BroadcastReceiver() {
                     AlertItem(
                         id = docId,
                         title = title,
-                        desc = desc,
+                        desc = desc,               // descripción limpia
                         isRead = false,
-                        type = alertType,
-                        extraInfo = extraInfo
+                        type = alertType,           // ahora sí sabemos que es un evento
+                        extraInfo = extraInfo        // aquí la fecha de inicio
                     )
                 )
 
