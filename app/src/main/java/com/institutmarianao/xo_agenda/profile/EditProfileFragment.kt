@@ -160,13 +160,13 @@ class EditProfileFragment : Fragment() {
                 db.collection("usuarios")
                     .get()
                     .addOnSuccessListener { snap ->
-                        Log.d("DEBUG_USERS", "Encontrados ${snap.size()} docs en users/")
+                        Log.d("DEBUG_USERS", "Encontrados ${snap.size()} docs en usuarios/")
                         for (doc in snap.documents) {
                             Log.d("DEBUG_USERS", " → ${doc.id}: ${doc.data}")
                         }
                     }
                     .addOnFailureListener { e ->
-                        Log.e("DEBUG_USERS", "Error listando users/", e)
+                        Log.e("DEBUG_USERS", "Error listando usuarios/", e)
                     }
 
                 if (doc != null && doc.exists()) {
@@ -183,7 +183,7 @@ class EditProfileFragment : Fragment() {
                     emailEdit.setText(emailVal)
                     phoneEdit.setText(phoneVal)
                 } else {
-                    Log.d("ProfileFragment", "No existe users/$uid")
+                    Log.d("ProfileFragment", "No existe usuarios/$uid")
                     Toast.makeText(
                         requireContext(),
                         "No se encontraron datos de perfil", Toast.LENGTH_SHORT

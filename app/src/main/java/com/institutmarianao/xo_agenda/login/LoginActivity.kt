@@ -292,17 +292,14 @@ class LoginActivity : AppCompatActivity() {
     private fun saveUserDataToFirestore(user: com.google.firebase.auth.FirebaseUser) {
         // Crea un Map con los datos que quieres guardar
         val userData = hashMapOf(
-            "uid" to user.uid, // Siempre es bueno guardar el UID también en el documento
-            "name" to user.displayName,
+            "nom" to user.displayName,
             "email" to user.email,
             "photoUrl" to user.photoUrl.toString(), // Convierte la URI a String
-            "lastSignIn" to System.currentTimeMillis() // Marca de tiempo del último inicio de sesión
-            // Puedes añadir otros campos por defecto aquí si es un nuevo usuario
         )
 
         // Guarda los datos en la colección 'users', usando el UID de Firebase Auth como ID del documento
         // set(userData) creará el documento si no existe, o lo sobrescribirá si ya existe
-        firestore.collection("users").document(user.uid)
+        firestore.collection("usuarios").document(user.uid)
             .set(userData)
             .addOnSuccessListener {
                 // Datos guardados/actualizados en Firestore con éxito

@@ -52,6 +52,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx:24.4.0'
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
 
+    implementation 'com.github.bumptech.glide:glide:4.15.1' // O la última versión estable
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1' // Misma versión que la anterior
+
     //implementation 'com.google.firebase:firebase-auth:21.1.0'
 
     //implementation 'com.google.firebase:firebase-admin:9.2.0'
