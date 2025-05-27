@@ -27,7 +27,7 @@
     <string name="eliminar_cuenta">Delete Account!</string>
     <string name="edit_profile">Edit profile</string>
     <string name="perfil">Profile</string>
-    <string name="nombre">Number</string>
+    <string name="nombre">Name</string>
     <string name="email_cambio">Email</string>
     <string name="phone">Phone</string>
     <string name="olvidaste_tu_contrase_a">Forgot your password?</string>
@@ -36,9 +36,9 @@
     <string name="nombre_perfil">Name</string>
     <string name="email_perfil">Email</string>
     <string name="telefono">Phone</string>
-    <string name="perfil_menu">Profile</string>
-    <string name="calendario_menu">Calendar</string>
-    <string name="alertas_menu">Alerts</string>
+    <string name="perfil_menu"><![CDATA[Profile >]]></string>
+    <string name="calendario_menu"><![CDATA[Calendar >]]></string>
+    <string name="alertas_menu"><![CDATA[Alerts >]]></string>
     <string name="toca_per_seleccionar_la_data">Tap to select date</string>
     <string name="data_l_mit">Deadline:</string>
     <string name="activar_recordatori">Activate reminder:</string>
@@ -60,5 +60,5 @@
     <string name="your_email_address">Your email address</string>
     <string name="your_name">Your Name</string>
     <string name="have_an_a_account_sign_in">Have an a Account ? Sign In</string>
-    <string name="i_agree_to_the_terms_of_services_and_privacy_policy">Acepto los Términos de Servicio y la Política de Privacidad.</string>
+    <string name="i_agree_to_the_terms_of_services_and_privacy_policy">I agree to the Terms of Services and Privacy Policy.</string>
 </resources>

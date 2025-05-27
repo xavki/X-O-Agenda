@@ -36,8 +36,7 @@
     <string name="nombre_perfil">Nombre</string>
     <string name="email_perfil">Email</string>
     <string name="telefono">Teléfono</string>
-    <string name="perfil_menu">Perfil</string>
-    <string name="calendario_menu"><![CDATA[Calendario >]]></string>
+    <string name="perfil_menu"><![CDATA[Perfil >]]></string>
     <string name="alertas_menu"><![CDATA[Alertas >]]></string>
     <string name="toca_per_seleccionar_la_data">Toca per seleccionar la data</string>
     <string name="data_l_mit">Data límit:</string>
@@ -65,7 +64,8 @@
     <string name="confirm_your_password">Confirma tu contraseña</string>
     <string name="your_name">Su nombre</string>
     <string name="have_an_a_account_sign_in">¿Tienes una cuenta? Iniciar sesión</string>
-    <string name="i_agree_to_the_terms_of_services_and_privacy_policy">I agree to the Terms of Services and Privacy Policy.</string>
+    <string name="i_agree_to_the_terms_of_services_and_privacy_policy">" Acepto los Términos de Servicio y la Política de Privacidad."</string>
     <string name="your_password">Tu Contraseña</string>
     <string name="your_email_address">Su dirección de correo electrónico</string>
+    <string name="calendario_menu"><![CDATA[Calendario >]]></string>
 </resources>
