@@ -29,7 +29,7 @@
             android:layout_width="0dp"
             android:layout_height="60dp"
             android:paddingTop="20dp"
-            android:text="Perfil"
+            android:text="@string/perfil"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -83,7 +83,7 @@
             android:id="@+id/viewname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nombre"
+            android:text="@string/nombre_perfil"
             app:layout_constraintBottom_toTopOf="@+id/editname"
             app:layout_constraintStart_toStartOf="@+id/editname" />
 
@@ -104,7 +104,7 @@
             android:id="@+id/viewemail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email"
+            android:text="@string/email_perfil"
             app:layout_constraintBottom_toTopOf="@+id/editemail"
             app:layout_constraintStart_toStartOf="@+id/editemail" />
 
@@ -126,7 +126,7 @@
             android:id="@+id/viewphone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Teléfono"
+            android:text="@string/telefono"
             app:layout_constraintBottom_toTopOf="@+id/editphone"
             app:layout_constraintStart_toStartOf="@+id/editphone" />
 

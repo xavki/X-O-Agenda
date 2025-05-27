@@ -1,25 +1,57 @@
 <resources>
     <string name="app_name">X&amp;O-Agenda</string>
     <!-- TODO: Remove or change this placeholder text -->
-        <string name="drawer_open">Abrir menú</string>
-        <string name="drawer_close">Cerrar menú</string>
-        <string name="close_menu">Cerrar menú</string>
-        <string name="hello_message">¡Hola! Encantado de verte de nuevo.</string>
-        <string name="sign_in">Iniciar sesión</string>
-        <string name="email">Correo electrónico</string>
-        <string name="agenda">AGENDA</string>
-        <string name="password">Contraseña</string>
-        <string name="sing_in_button">Iniciar sesión</string>
-        <string name="remember_me">Recuérdame</string>
-        <string name="forgot_password">¿Olvidaste la contraseña?</string>
-        <string name="example_email">ejemplo@gmail.com</string>
-        <string name="sing_up_button">Registrarse</string>
-        <string name="google_button">G Google</string>
-        <string name="titulocalendario">Calendario</string>
+    <string name="drawer_open">Abrir menú</string>
+    <string name="drawer_close">Cerrar menú</string>
+    <string name="close_menu">Cerrar menú</string>
+    <string name="hello_message">¡Hola! Encantado de verte de nuevo.</string>
+    <string name="sign_in">Iniciar sesión</string>
+    <string name="email">Correo electrónico</string>
+    <string name="agenda">AGENDA</string>
+    <string name="password">Contraseña</string>
+    <string name="sing_in_button">Iniciar sesión</string>
+    <string name="remember_me">Recuérdame</string>
+    <string name="forgot_password">¿Olvidaste la contraseña?</string>
+    <string name="example_email">ejemplo@gmail.com</string>
+    <string name="sing_up_button">Registrarse</string>
+    <string name="google_button">G Google</string>
+    <string name="titulocalendario">Calendario</string>
     <string name="channel_name">Alertes de l’Agenda</string>
-    <string name="snooze">Posponer</string>
     <string name="channel_description">Es un recordatorio de que tienes algo pendiente</string>
     <string name="default_title">Recordatorio</string>
+    <string name="alertas">Alertas</string>
+    <string name="configuraci_n">Configuración</string>
+    <string name="vincular_calendario_de_google">Vincular calendario de Google</string>
+    <string name="idioma_espa_ol">Idioma : ESPAÑOL</string>
+    <string name="cerrar_session">Cerrar Session</string>
+    <string name="eliminar_cuenta">Eliminar Cuenta !</string>
+    <string name="edit_profile">Edita el perfil</string>
+    <string name="perfil">Perfil</string>
+    <string name="nombre">Nombre</string>
+    <string name="email_cambio">Email</string>
+    <string name="phone">Teléfono</string>
+    <string name="olvidaste_tu_contrase_a">¿Olvidaste tu contraseña?</string>
+    <string name="restablecer_contrase_a">Restablecer Contraseña</string>
+    <string name="confirm">Confirmar</string>
+    <string name="nombre_perfil">Nombre</string>
+    <string name="email_perfil">Email</string>
+    <string name="telefono">Teléfono</string>
+    <string name="perfil_menu">Perfil</string>
+    <string name="calendario_menu"><![CDATA[Calendario >]]></string>
+    <string name="alertas_menu"><![CDATA[Alertas >]]></string>
+    <string name="toca_per_seleccionar_la_data">Toca per seleccionar la data</string>
+    <string name="data_l_mit">Data límit:</string>
+    <string name="activar_recordatori">Activar recordatori:</string>
+    <string name="toca_per_seleccionar_data_de_recordatorio">Toca per seleccionar data de recordatorio</string>
+    <string name="estado">Estado</string>
+    <string name="descripci">Descripció</string>
+    <string name="t_tol_de_la_tasca">Títol de la tasca</string>
+    <string name="t_tol_del_esdeveniment">Títol del esdeveniment</string>
+    <string name="data_inici">Data Inici:</string>
+    <string name="guardar">Guardar</string>
+    <string name="data_finalitzaci">Data Finalització:</string>
+    <string name="debe_esperar_5_minutos_antes_de_enviar_otro_correo">Debe esperar 5 minutos antes de enviar otro correo.</string>
+    <string name="ya_tienes_cuenta_inicia_sesi_n">Ya tienes cuenta ? Inicia sesión !</string>
 
 
     <string-array name="array_estats_tasca">
@@ -27,4 +59,13 @@
         <item>Completada</item>
         <item>Pendiente</item>
     </string-array>
+    <string name="account_recovery">Recuperació del compte</string>
+    <string name="send_recovery_mail">Envia un correu de recuperació</string>
+    <string name="sign_up">Inscribirse</string>
+    <string name="confirm_your_password">Confirma tu contraseña</string>
+    <string name="your_name">Su nombre</string>
+    <string name="have_an_a_account_sign_in">¿Tienes una cuenta? Iniciar sesión</string>
+    <string name="i_agree_to_the_terms_of_services_and_privacy_policy">I agree to the Terms of Services and Privacy Policy.</string>
+    <string name="your_password">Tu Contraseña</string>
+    <string name="your_email_address">Su dirección de correo electrónico</string>
 </resources>

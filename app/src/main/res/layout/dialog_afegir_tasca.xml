@@ -13,14 +13,14 @@
             android:id="@+id/editTextTitol"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Títol de la tasca"
+            android:hint="@string/t_tol_de_la_tasca"
             android:inputType="text"/>
 
         <EditText
             android:id="@+id/editTextDescripcio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Descripció"
+            android:hint="@string/descripci"
             android:inputType="textMultiLine"
             android:minLines="2"
             android:gravity="top"
@@ -29,14 +29,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Data límit:"
+            android:text="@string/data_l_mit"
             android:layout_marginTop="12dp"/>
 
         <TextView
             android:id="@+id/textViewDataLimit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Toca per seleccionar la data"
+            android:text="@string/toca_per_seleccionar_la_data"
             android:background="#EEEEEE"
             android:padding="8dp"
             android:layout_marginTop="4dp"/>
@@ -44,14 +44,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Activar recordatori:"
+            android:text="@string/activar_recordatori"
             android:layout_marginTop="12dp"/>
 
         <TextView
             android:id="@+id/textviewRecordatori"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Toca per seleccionar data de recordatorio"
+            android:text="@string/toca_per_seleccionar_data_de_recordatorio"
             android:background="#EEEEEE"
             android:padding="8dp"
             android:layout_marginTop="4dp"/>
@@ -60,7 +60,7 @@
             android:id="@+id/textviewEstado"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Estado"
+            android:text="@string/estado"
             android:layout_marginTop="12dp"/>
 
         <Spinner
@@ -73,7 +73,7 @@
             android:id="@+id/buttonGuardarTasca"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Guardar"
+            android:text="@string/guardar"
             android:layout_marginTop="16dp"/>
     </LinearLayout>
 </ScrollView>
