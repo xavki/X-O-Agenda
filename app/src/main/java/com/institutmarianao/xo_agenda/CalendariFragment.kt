@@ -26,6 +26,7 @@ import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.Timestamp
@@ -35,6 +36,7 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
 import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
 import com.institutmarianao.xo_agenda.models.CalendarItem
+import java.util.Date
 import java.util.Locale
 
 class CalendariFragment : Fragment(), OnItemActionListener {
@@ -43,12 +45,20 @@ class CalendariFragment : Fragment(), OnItemActionListener {
     lateinit var adapter: CalendarItemAdapter
     lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
     var selectedDate: Calendar = Calendar.getInstance()
-
+    private val dateFormat: SimpleDateFormat by lazy {
+        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
+    }
+    private val calendarInici = Calendar.getInstance()
+    private val calendarFi = Calendar.getInstance()
+    private val calendarFinal    = Calendar.getInstance()
+    private val calendarRecord   = Calendar.getInstance()
+    private var dataIniciSeleccionada: Timestamp? = null
+    private var dataFinalSeleccionada: Timestamp? = null
+    private var recordatoriSeleccionat:    Timestamp? = null
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
 
         // Botón para abrir el menú lateral
@@ -62,7 +72,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         val calendarView = view.findViewById<CalendarView>(R.id.calendar)
         val txtDay = view.findViewById<TextView>(R.id.txtDay)
 
-
         //mostrar tareas y eventos
         selectedDate.time = Calendar.getInstance().time
         calendarItems = mutableListOf()
@@ -72,7 +81,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         recyclerView.adapter = adapter
 
         cargareventosytareas(calendarItems, adapter, selectedDate)
-
 
         val today = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("'Día' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
@@ -92,10 +100,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 .replaceFirstChar { it.titlecase(Locale.getDefault()) }
 
             cargareventosytareas(calendarItems, adapter, selectedDate)
-
-
         }
-
 
         anadir.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
@@ -125,7 +130,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         }
         return view
     }
-
     private fun cargareventosytareas(
         calendarItems: MutableList<CalendarItem>,
         adapter: CalendarItemAdapter,
@@ -202,7 +206,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 procesarDocumentos(it, "Esdeveniment")
             }
     }
-
     @SuppressLint("MissingInflatedId")
     fun mostrarDialogAfegirTasca() {
         val builder = AlertDialog.Builder(requireContext())
@@ -227,59 +230,24 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         // Selección de data límit
         textViewDataLimit.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            textViewDataLimit.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            dataLimitSeleccionada = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                minDate = System.currentTimeMillis()
+            ) { date ->
+                textViewDataLimit.text = dateFormat.format(date)
+                dataLimitSeleccionada = Timestamp(date)
+            }
         }
 
         // Selección de recordatori
         textViewRecordatori.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            textViewRecordatori.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            recordatoriSeleccionat = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendar,
+                minDate = System.currentTimeMillis()
+            ) { date ->
+                calendar.time = date
+                textViewRecordatori.text = dateFormat.format(date)
+                recordatoriSeleccionat = Timestamp(date)
+            }
         }
 
         val dialog = builder.setView(dialogView)
@@ -323,56 +291,22 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                     .collection("tasques")
                     .add(tasca)
                     .addOnSuccessListener { docRef ->
-                        Toast.makeText(requireContext(), "Tasca guardada", Toast.LENGTH_SHORT)
-                            .show()
+                        mostrarToast("Tasca guardada")
                         dialog.dismiss()
                         cargareventosytareas(calendarItems, adapter, selectedDate)
+
                         recordatoriSeleccionat?.let { ts ->
-                            val am =
-                                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                            // 1) Crea el Intent y el PendingIntent (pi)
-                            val reminderIntent =
-                                Intent(requireContext(), ReminderReceiver::class.java).apply {
-                                    putExtra("docId", docRef.id)
-                                    putExtra("type", "tasques")
-                                    putExtra("titol", titol)
-                                    putExtra("descripcio", descripcio)
-                                }
-                            val requestCode = docRef.id.hashCode()
-                            val pi = PendingIntent.getBroadcast(
-                                requireContext(),
-                                requestCode,
-                                reminderIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            )
-
-                            // 2) Ahora sí: comprueba permiso de exact alarms
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                if (!am.canScheduleExactAlarms()) {
-                                    // Lleva al usuario a ajustes para dar permiso
-                                    val settingsIntent =
-                                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                            data =
-                                                Uri.parse("package:${requireContext().packageName}")
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        }
-                                    requireContext().startActivity(settingsIntent)
-                                    return@let   // sin programar hasta que acepte
-                                }
-                            }
-
-                            // 3) Finalmente programa la alarma
-                            am.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                ts.toDate().time,
-                                pi   // aquí sí existe
+                            rescheduleAlarm(
+                                docId     = docRef.id,
+                                type      = "tasques",
+                                title     = titol,
+                                desc      = descripcio,
+                                triggerAt = ts.toDate().time
                             )
                         }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
-                            .show()
+                        mostrarToast("Error al guardar")
                     }
             }
         }
@@ -400,88 +334,39 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         // Selección de data límit
         textDataLimit.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            textDataLimit.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            dataIniciSeleccionada = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendarInici,
+                minDate = Calendar.getInstance().timeInMillis
+            ) { date ->
+                calendarInici.time = date
+                textDataLimit.text = dateFormat.format(date)
+                dataIniciSeleccionada = Timestamp(date)
+            }
         }
 
-        // SELECCIO DATA FINALITZACIÓ
+        // Selección de data finalització
         textFinalitzacio.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            textFinalitzacio.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            dataFinalSeleccionada = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendarFi,
+                // opcional: que no sea anterior a la data d'inici
+                minDate = dataIniciSeleccionada?.toDate()?.time
+                    ?: Calendar.getInstance().timeInMillis
+            ) { date ->
+                calendarFi.time = date
+                textFinalitzacio.text = dateFormat.format(date)
+                dataFinalSeleccionada = Timestamp(date)
+            }
         }
 
         // Selección de recordatori
         textRecordatori.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            textRecordatori.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            recordatoriSeleccionat = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendar
+            ) { date ->
+                calendar.time = date
+                textRecordatori.text = dateFormat.format(date)
+                recordatoriSeleccionat = Timestamp(date)
+            }
         }
 
         val dialog = builder.setView(dialogView)
@@ -535,64 +420,29 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                     .collection("esdeveniments")
                     .add(tasca)
                     .addOnSuccessListener { docRef ->
-                        Toast.makeText(requireContext(), "Esdeveniment guardat", Toast.LENGTH_SHORT)
-                            .show()
+                        mostrarToast("Esdeveniment guardat")
                         dialog.dismiss()
                         cargareventosytareas(calendarItems, adapter, selectedDate)
-                        // Programar alarma si hay recordatori
+
                         recordatoriSeleccionat?.let { ts ->
-                            val am =
-                                requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                            // 1) Crea el Intent y el PendingIntent (pi)
-                            val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
-                                putExtra("docId", docRef.id)
-                                putExtra("type", "esdeveniments")
-                                putExtra("titol", titol)
-                                putExtra("descripcio", descripcio)
-                            }
-
-                            val requestCode = docRef.id.hashCode()
-                            val pi = PendingIntent.getBroadcast(
-                                requireContext(),
-                                requestCode,
-                                reminderIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            )
-
-                            // 2) Ahora sí: comprueba permiso de exact alarms
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                if (!am.canScheduleExactAlarms()) {
-                                    // Lleva al usuario a ajustes para dar permiso
-                                    val settingsIntent =
-                                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                            data =
-                                                Uri.parse("package:${requireContext().packageName}")
-                                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                        }
-                                    requireContext().startActivity(settingsIntent)
-                                    return@let   // sin programar hasta que acepte
-                                }
-                            }
-
-                            // 3) Finalmente programa la alarma
-                            am.setExactAndAllowWhileIdle(
-                                AlarmManager.RTC_WAKEUP,
-                                ts.toDate().time,
-                                pi   // aquí sí existe
+                            // Llama a tu helper y ya se encarga de cancelar/la alarma
+                            rescheduleAlarm(
+                                docId     = docRef.id,
+                                type      = "esdeveniments",
+                                title     = titol,
+                                desc      = descripcio,
+                                triggerAt = ts.toDate().time
                             )
                         }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Error al guardar", Toast.LENGTH_SHORT)
-                            .show()
+                        mostrarToast("Error al guardar")
                     }
             }
         }
 
         dialog.show()
     }
-
 
     override fun onEdit(item: CalendarItem) {
         if (item.tipo == "Tasca") {
@@ -601,7 +451,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             mostrarDialogEditarEvent(item)
         }
     }
-
 
     private fun mostrarDialogEditarTasca(item: CalendarItem) {
         val builder = AlertDialog.Builder(requireContext())
@@ -642,7 +491,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             edtTitol.setText(doc.getString("titol"))
             edtDesc.setText(doc.getString("descripció"))
 
-
             val fmt = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             doc.getTimestamp("data_limit")?.also {
                 dataLimitSeleccionada = it
@@ -657,65 +505,29 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             spinnerEstat.setSelection(estados.indexOf(actual))
         }
 
-        // 5) DatePicker / TimePicker para volver a seleccionar límites y recordatorio
-
         // Selección de data límit
         txtDataLimit.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            txtDataLimit.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            dataLimitSeleccionada = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendar,
+                minDate = System.currentTimeMillis()
+            ) { date ->
+                calendar.time = date
+                txtDataLimit.text = dateFormat.format(date)
+                dataLimitSeleccionada = Timestamp(date)
+            }
         }
 
         // Selección de recordatori
         txtRecord.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            txtRecord.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            recordatoriSeleccionat = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendar,
+                minDate = dataLimitSeleccionada?.toDate()?.time ?: System.currentTimeMillis()
+            ) { date ->
+                calendar.time = date
+                txtRecord.text = dateFormat.format(date)
+                recordatoriSeleccionat = Timestamp(date)
+            }
         }
-
 
         // Guardar cambios
         btnGuardar.setOnClickListener {
@@ -749,78 +561,29 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             )
             recordatoriSeleccionat?.let { updates["recordatori"] = it }
 
-
             docRef.update(updates)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Tasca actualitzada", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireContext(), "Tasca actualitzada", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                     cargareventosytareas(calendarItems, adapter, selectedDate)
-                    // Primero, cancela la alarma anterior (si existía)
-                    val am =
-                        requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    val oldIntent = Intent(requireContext(), ReminderReceiver::class.java)
-                    val oldPi = PendingIntent.getBroadcast(
-                        requireContext(),
-                        item.id.hashCode(),
-                        oldIntent,
-                        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-                    )
-                    if (oldPi != null) am.cancel(oldPi)
 
-                    // Luego, programa la nueva
                     recordatoriSeleccionat?.let { ts ->
-                        val am =
-                            requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                        // 1) Crea el Intent y el PendingIntent (pi)
-                        val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
-                            putExtra("docId", docRef.id)
-                            putExtra("type", "tasques")
-                            putExtra("titol", newTitol)    // ahora sí existe
-                            putExtra("descripcio", newDesc)
-                        }
-
-
-                        val requestCode = docRef.id.hashCode()
-                        val pi = PendingIntent.getBroadcast(
-                            requireContext(),
-                            requestCode,
-                            reminderIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                        )
-
-                        // 2) Ahora sí: comprueba permiso de exact alarms
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            if (!am.canScheduleExactAlarms()) {
-                                // Lleva al usuario a ajustes para dar permiso
-                                val settingsIntent =
-                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = Uri.parse("package:${requireContext().packageName}")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                requireContext().startActivity(settingsIntent)
-                                return@let   // sin programar hasta que acepte
-                            }
-                        }
-
-                        // 3) Finalmente programa la alarma
-                        am.setExactAndAllowWhileIdle(
-                            AlarmManager.RTC_WAKEUP,
-                            ts.toDate().time,
-                            pi   // aquí sí existe
+                        rescheduleAlarm(
+                            docId     = item.id,
+                            type      = "tasques",
+                            title     = newTitol,
+                            desc      = newDesc,
+                            triggerAt = ts.toDate().time
                         )
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT).show()
                 }
         }
 
         dialog.show()
     }
-
 
     private fun mostrarDialogEditarEvent(item: CalendarItem) {
         val builder = AlertDialog.Builder(requireContext())
@@ -839,7 +602,6 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         var dataFinalSeleccionada: Timestamp? = null
         var recordatoriSeleccionat: Timestamp? = null
         val calendar = Calendar.getInstance()
-
 
         // Cargar doc para obtener los Timestamps originales
         val uid = FirebaseAuth.getInstance().currentUser!!.uid
@@ -871,65 +633,39 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         txtInici.isFocusable = false
         txtInici.alpha = 0.6f
 
-
-        // SELECCIO DATA FINALITZACIÓ
+        // SELECCIÓ DATA FINALITZACIÓ
         txtFinal.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            txtFinal.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            dataFinalSeleccionada = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.datePicker.minDate = Calendar.getInstance().timeInMillis
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendarFinal,
+                // No deixar que la final sigui abans de la inici
+                minDate = dataIniciSeleccionada
+                    ?.toDate()
+                    ?.time
+                    ?: System.currentTimeMillis()
+            ) { date ->
+                calendarFinal.time = date
+                txtFinal.text = dateFormat.format(date)
+                dataFinalSeleccionada = Timestamp(date)
+            }
         }
 
         // Selección de recordatori
         txtRecord.setOnClickListener {
-            val datePicker = DatePickerDialog(
-                requireContext(),
-                { _, year, month, day ->
-                    val timePicker = TimePickerDialog(
-                        requireContext(),
-                        { _, hourOfDay, minute ->
-                            calendar.set(year, month, day, hourOfDay, minute)
-                            txtRecord.text =
-                                SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(
-                                    calendar.time
-                                )
-                            recordatoriSeleccionat = Timestamp(calendar.time)
-                        },
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
-                        true
-                    )
-                    timePicker.show()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            )
-            datePicker.show()
+            requireContext().showDateTimePicker(
+                initial = calendarRecord,
+                // No deixar que el recordatori sigui abans de la inici
+                minDate = dataIniciSeleccionada
+                    ?.toDate()
+                    ?.time
+                    ?: System.currentTimeMillis()
+            ) { date ->
+                calendarRecord.time = date
+                txtRecord.text = dateFormat.format(date)
+                recordatoriSeleccionat = Timestamp(date)
+            }
         }
 
-        // 3) Guardar cambios
+        // Guardar cambios
         btnGuardar.setOnClickListener {
             val newTitle = edtTitol.text.toString().trim()
             val newDesc = edtDesc.text.toString().trim()
@@ -964,68 +700,20 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             )
 
             docRef.update(updates)
-                .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Esdeveniment actualitzat", Toast.LENGTH_SHORT)
-                        .show()
+                .addOnSuccessListener { docRef ->
+                    Toast.makeText(requireContext(), "… actualizado", LENGTH_SHORT).show()
                     dialog.dismiss()
                     cargareventosytareas(calendarItems, adapter, selectedDate)
-                    // Primero, cancela la alarma anterior (si existía)
-                    val am =
-                        requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    val oldIntent = Intent(requireContext(), ReminderReceiver::class.java)
-                    val oldPi = PendingIntent.getBroadcast(
-                        requireContext(),
-                        item.id.hashCode(),
-                        oldIntent,
-                        PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-                    )
-                    if (oldPi != null) am.cancel(oldPi)
-
-                    // Luego, programa la nueva
                     recordatoriSeleccionat?.let { ts ->
-                        val am =
-                            requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-                        // 1) Crea el Intent y el PendingIntent (pi)
-                        val reminderIntent = Intent(requireContext(), ReminderReceiver::class.java).apply {
-                            putExtra("docId", docRef.id)
-                            putExtra("type", "esdeveniments")  // ← ahora coincide con tu colección de eventos
-                            putExtra("titol", newTitle)
-                            putExtra("descripcio", newDesc)
-                        }
-
-                        val requestCode = docRef.id.hashCode()
-                        val pi = PendingIntent.getBroadcast(
-                            requireContext(),
-                            requestCode,
-                            reminderIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                        )
-
-                        // 2) Ahora sí: comprueba permiso de exact alarms
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            if (!am.canScheduleExactAlarms()) {
-                                // Lleva al usuario a ajustes para dar permiso
-                                val settingsIntent =
-                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = Uri.parse("package:${requireContext().packageName}")
-                                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    }
-                                requireContext().startActivity(settingsIntent)
-                                return@let   // sin programar hasta que acepte
-                            }
-                        }
-
-                        // 3) Finalmente programa la alarma
-                        am.setExactAndAllowWhileIdle(
-                            AlarmManager.RTC_WAKEUP,
-                            ts.toDate().time,
-                            pi   // aquí sí existe
+                        rescheduleAlarm(
+                            docId     = item.id,
+                            type      = "esdeveniments",           // o "tasques"
+                            title     = newTitle,
+                            desc      = newDesc,
+                            triggerAt = ts.toDate().time
                         )
                     }
-
                 }
-
                 .addOnFailureListener {
                     Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
                         .show()
@@ -1034,8 +722,78 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         dialog.show()
     }
+    private fun mostrarToast(mensaje: String) {
+        Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
+    }
+    fun Context.showDateTimePicker(
+        initial: Calendar = Calendar.getInstance(),
+        minDate: Long? = null,
+        onDateTimeSelected: (Date) -> Unit
+    ) {
+        DatePickerDialog(
+            this,
+            { _, y, m, d ->
+                TimePickerDialog(this, { _, h, min ->
+                    Calendar.getInstance().apply {
+                        set(y, m, d, h, min)
+                    }.time.let(onDateTimeSelected)
+                }, initial.get(Calendar.HOUR_OF_DAY), initial.get(Calendar.MINUTE), true).show()
+            },
+            initial.get(Calendar.YEAR),
+            initial.get(Calendar.MONTH),
+            initial.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            minDate?.let { datePicker.minDate = it }
+        }.show()
+    }
+    private fun rescheduleAlarm(
+        docId: String,
+        type: String,        // "tasques" o "esdeveniments"
+        title: String,
+        desc: String,
+        triggerAt: Long
+    ) {
+        val context = requireContext()
+        val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+        // Cancela la antigua (si existía)
+        Intent(context, ReminderReceiver::class.java).let { oldIntent ->
+            PendingIntent.getBroadcast(
+                context,
+                docId.hashCode(),
+                oldIntent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )?.let { am.cancel(it) }
+        }
 
+        // Crea la nueva
+        val reminderIntent = Intent(context, ReminderReceiver::class.java).apply {
+            putExtra("docId", docId)
+            putExtra("type", type)
+            putExtra("titol", title)
+            putExtra("descripcio", desc)
+        }
+        val pi = PendingIntent.getBroadcast(
+            context,
+            docId.hashCode(),
+            reminderIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Comprueba permisos en Android S+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !am.canScheduleExactAlarms()) {
+            context.startActivity(
+                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                    data = Uri.parse("package:${context.packageName}")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+            )
+            return
+        }
+
+        // Programa
+        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi)
+    }
     override fun onDelete(item: CalendarItem) {
         AlertDialog.Builder(requireContext())
             .setTitle("Borrar ${item.tipo}")

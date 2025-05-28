@@ -60,22 +60,21 @@ class MenuActivity : AppCompatActivity() {
         if (user != null) {
             tvEmail.text = user.email
 
-            // 🔁 Escuchar en tiempo real los cambios de nombre
-            // 2. Creamos un listener en tiempo real sobre el documento del usuario en Firestore
+            //  Creamos un listener en tiempo real sobre el documento del usuario en Firestore
             FirebaseFirestore.getInstance()
                 .collection("usuarios")
                 .document(user.uid)
                 .addSnapshotListener { snapshot, error ->
 
-                    // 3. Si hubo un error, lo mostramos por consola
+                    // Si hubo un error, lo mostramos por consola
                     if (error != null) {
                         Log.w("FirestoreListener", "Error escuchando documento:", error)
                         return@addSnapshotListener
                     }
 
-                    // 4. Si el documento existe (es decir, el usuario tiene datos guardados)
+                    // Si el documento existe (es decir, el usuario tiene datos guardados)
                     if (snapshot != null && snapshot.exists()) {
-                        // 5. Obtenemos el campo "nom" del documento y lo ponemos en el TextView
+                        //Obtenemos el campo "nom" del documento y lo ponemos en el TextView
                         val newName = snapshot.getString("nom")
                         tvName.text = newName ?: ""
                     }

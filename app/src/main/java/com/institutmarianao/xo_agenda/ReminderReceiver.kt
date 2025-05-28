@@ -23,7 +23,7 @@ class ReminderReceiver : BroadcastReceiver() {
         createNotificationChannel(ctx)
         val pendingResult = goAsync()
 
-        // 1) Extraemos docId y collection (evento/tasca)
+        // Extraemos docId y collection (evento/tasca)
         val docId = intent.getStringExtra("docId")
         val collection = intent.getStringExtra("type")
         val uid = FirebaseAuth.getInstance().currentUser?.uid
@@ -32,7 +32,7 @@ class ReminderReceiver : BroadcastReceiver() {
             return
         }
 
-        // 2) Leemos el documento Firestore
+        // Leemos el documento Firestore
         FirebaseFirestore.getInstance()
             .collection("usuarios")
             .document(uid)
@@ -40,25 +40,25 @@ class ReminderReceiver : BroadcastReceiver() {
             .document(docId)
             .get()
             .addOnSuccessListener { doc ->
-                // 3) Título “crudo” (sin fallback)
+                // Título “crudo” (sin fallback)
                 val rawTitle = doc.getString("titol")
                 if (rawTitle == null) {
                     pendingResult.finish()
                     return@addOnSuccessListener
                 }
-                // 4) Descripción
+                // Descripción
                 val rawDesc = doc.getString("descripció") ?: ""
-                // 5) ExtraInfo (por ejemplo fecha de inicio)
+                // ExtraInfo (por ejemplo fecha de inicio)
                 val rawExtra = doc.getDate("data_inici")?.toString() ?: ""
 
-                // 6) Decidimos tipo de alerta según la colección
+                // Decidimos tipo de alerta según la colección
                 val alertType = when (collection) {
                     "esdeveniments" -> "evento"
                     "tasques"        -> "tasca"
                     else             -> "otro"
                 }
 
-                // 7) Construimos y guardamos la alerta real
+                // Construimos y guardamos la alerta real
                 // Así encaja con tu data class
                 val item = AlertItem(
                     id       = docId,
@@ -71,7 +71,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
                 AlertRepository.addAlert(ctx, item)
 
-                // 8) Preparamos los datos para la notificación
+                // Preparamos los datos para la notificación
                 val title     = item.title
                 val desc      = item.desc
                 val extraInfo = item.extraInfo
@@ -83,7 +83,7 @@ class ReminderReceiver : BroadcastReceiver() {
                 }
 
 
-                // 9) Intent genérico: solo navigatingTo=alerts
+                // Intent genérico: solo navigatingTo=alerts
                 val detailIntent = Intent(ctx, MenuActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     putExtra("navigateTo", "alerts")
@@ -95,7 +95,7 @@ class ReminderReceiver : BroadcastReceiver() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                // 10) Construcción y envío de la notificación
+                // Construcción y envío de la notificación
                 val notifBuilder = NotificationCompat.Builder(ctx, CHANNEL_ID)
                     .setSmallIcon(R.drawable.logoxajo)
                     .setContentTitle(title)
