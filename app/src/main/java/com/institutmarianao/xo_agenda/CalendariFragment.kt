@@ -8,6 +8,7 @@ import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
 import android.net.Uri
@@ -19,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CalendarView
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -36,6 +36,8 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.institutmarianao.xo_agenda.adapters.CalendarItemAdapter
 import com.institutmarianao.xo_agenda.adapters.OnItemActionListener
 import com.institutmarianao.xo_agenda.models.CalendarItem
+import com.prolificinteractive.materialcalendarview.CalendarDay
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView
 import java.util.Date
 import java.util.Locale
 
@@ -45,167 +47,195 @@ class CalendariFragment : Fragment(), OnItemActionListener {
     lateinit var adapter: CalendarItemAdapter
     lateinit var recyclerView: androidx.recyclerview.widget.RecyclerView
     var selectedDate: Calendar = Calendar.getInstance()
-    private val dateFormat: SimpleDateFormat by lazy {
-        SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
-    }
+    private val dateFormat =
+        SimpleDateFormat(
+            "'Día' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES")
+        )
+
+
+    private lateinit var txtDay: TextView
+    private val allEventDays = mutableSetOf<CalendarDay>()
+    private lateinit var calendarView: MaterialCalendarView
     private val calendarInici = Calendar.getInstance()
     private val calendarFi = Calendar.getInstance()
-    private val calendarFinal    = Calendar.getInstance()
-    private val calendarRecord   = Calendar.getInstance()
+    private val calendarFinal = Calendar.getInstance()
+    private val calendarRecord = Calendar.getInstance()
     private var dataIniciSeleccionada: Timestamp? = null
     private var dataFinalSeleccionada: Timestamp? = null
-    private var recordatoriSeleccionat:    Timestamp? = null
+    private var recordatoriSeleccionat: Timestamp? = null
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
+        // Inicializa calendarItems aquí, dentro del cuerpo:
+        calendarItems = mutableListOf()
+
         val view = inflater.inflate(R.layout.fragment_calendar, container, false)
 
-        // Botón para abrir el menú lateral
-        val btnOpenMenu = view.findViewById<ImageView>(R.id.btnOpenMenu)
-        val anadir = view.findViewById<ImageButton>(R.id.btnanadir)
-
-        btnOpenMenu.setOnClickListener {
-            // Llama al método público de la actividad para abrir el drawer
-            (activity as? MenuActivity)?.openDrawer()
+        // Botón menú
+        view.findViewById<ImageView>(R.id.btnOpenMenu).apply {
+            setOnClickListener { (activity as? MenuActivity)?.openDrawer() }
         }
-        val calendarView = view.findViewById<CalendarView>(R.id.calendar)
-        val txtDay = view.findViewById<TextView>(R.id.txtDay)
+        // Botón añadir
+        view.findViewById<ImageButton>(R.id.btnanadir).setOnClickListener {
+            mostrarOpcionesAgregar()
+        }
 
-        //mostrar tareas y eventos
-        selectedDate.time = Calendar.getInstance().time
-        calendarItems = mutableListOf()
-        adapter = CalendarItemAdapter(calendarItems, this)
+        // Referencias principales
+        calendarView = view.findViewById(R.id.calendar)
+        txtDay = view.findViewById(R.id.txtDay)
         recyclerView = view.findViewById(R.id.recyclerViewCalendarItems)
+
+        // RecyclerView
+        adapter = CalendarItemAdapter(calendarItems, this)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
-        cargareventosytareas(calendarItems, adapter, selectedDate)
+        // 1) Carga global de fechas para decorar
+        loadEventDays()
 
-        val today = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("'Día' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
-        val formattedDate = dateFormat.format(today.time)
-        txtDay.text =
-            formattedDate.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            selectedDate.set(year, month, dayOfMonth, 0, 0, 0)
-            selectedDate.set(Calendar.MILLISECOND, 0)
-            // Solo permite seleccionar a partir de hoy
-            calendarView.minDate = Calendar.getInstance().timeInMillis
-
-            val dateFormat =
-                SimpleDateFormat("'Dia' EEEE, d 'de' MMMM 'de' yyyy", Locale("es", "ES"))
-            txtDay.text = dateFormat.format(selectedDate.time)
-                .replaceFirstChar { it.titlecase(Locale.getDefault()) }
-
-            cargareventosytareas(calendarItems, adapter, selectedDate)
+        // 2) Listener DE LISTADO (no toca decoradores)
+        calendarView.setOnDateChangedListener { _, date, _ ->
+            val cal = Calendar.getInstance().apply {
+                time = date.date
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            txtDay.text = dateFormat.format(cal.time)
+            cargareventosytareas(cal)
         }
 
-        anadir.setOnClickListener {
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Selecciona una opció")
-
-            val options = arrayOf("Tasca", "Esdeveniment")
-
-            builder.setSingleChoiceItems(options, -1) { dialog, which ->
-                dialog.dismiss() // Cierra el primer diálogo
-
-                when (which) {
-                    0 -> { // Tasca
-                        mostrarDialogAfegirTasca()
-                    }
-
-                    1 -> { // Esdeveniments
-                        mostrarDialogAfegirEvent()
-                    }
-                }
-            }
-
-            builder.setNegativeButton("Cancelar") { dialog, _ ->
-                dialog.dismiss()
-            }
-
-            builder.show()
+        // 3) Carga inicial de hoy
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
+        txtDay.text = dateFormat.format(today.time)
+        cargareventosytareas(selectedDate)
+
         return view
     }
-    private fun cargareventosytareas(
-        calendarItems: MutableList<CalendarItem>,
-        adapter: CalendarItemAdapter,
-        filterDate: Calendar
-    ) {
+
+
+    private fun cargareventosytareas(filterDate: Calendar) {
         val db = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // Calcula el inicio y fin del día seleccionado
+        // Rango día
         val startOfDay = filterDate.clone() as Calendar
-        startOfDay.set(Calendar.HOUR_OF_DAY, 0)
-        startOfDay.set(Calendar.MINUTE, 0)
-        startOfDay.set(Calendar.SECOND, 0)
-        startOfDay.set(Calendar.MILLISECOND, 0)
-
+        startOfDay.set(Calendar.HOUR_OF_DAY, 0); startOfDay.set(Calendar.MINUTE, 0)
+        startOfDay.set(Calendar.SECOND, 0); startOfDay.set(Calendar.MILLISECOND, 0)
         val endOfDay = filterDate.clone() as Calendar
-        endOfDay.set(Calendar.HOUR_OF_DAY, 23)
-        endOfDay.set(Calendar.MINUTE, 59)
-        endOfDay.set(Calendar.SECOND, 59)
-        endOfDay.set(Calendar.MILLISECOND, 999)
+        endOfDay.set(Calendar.HOUR_OF_DAY, 23); endOfDay.set(Calendar.MINUTE, 59)
+        endOfDay.set(Calendar.SECOND, 59); endOfDay.set(Calendar.MILLISECOND, 999)
 
         calendarItems.clear()
 
-        // Función para procesar los documentos ya filtrados
-        fun procesarDocumentos(docs: QuerySnapshot, tipo: String) {
-            val fmt = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
+        fun procesar(docs: QuerySnapshot, tipo: String) {
+            val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
             for (doc in docs) {
-                val id = doc.id
-                val title = doc.getString("titol") ?: ""
-                val description = doc.getString("descripció") ?: ""
-
-                // Dependiendo de si es tarea o evento, tomamos data_limit o data_inici
-                val tsDate = if (tipo == "Tasca") {
+                val ts = if (tipo == "Tasca")
                     doc.getTimestamp("data_limit")
-                } else {
+                else
                     doc.getTimestamp("data_inici")
-                } ?: continue
-
-                val itemDate = tsDate.toDate()
-                // Sólo añadimos si cae en el rango del día seleccionado
-                if (itemDate.before(startOfDay.time) || itemDate.after(endOfDay.time)) {
-                    continue
+                ts?.toDate()?.takeIf { it in startOfDay.time..endOfDay.time }?.let { itemDate ->
+                    val fechaText = if (tipo == "Tasca") {
+                        fmt.format(itemDate)
+                    } else {
+                        val tsEnd = doc.getTimestamp("data_fi")?.toDate() ?: itemDate
+                        "${fmt.format(itemDate)} - ${fmt.format(tsEnd)}"
+                    }
+                    calendarItems.add(
+                        CalendarItem(
+                            doc.id,
+                            doc.getString("titol") ?: "",
+                            doc.getString("descripció") ?: "",
+                            fechaText,
+                            tipo,
+                            itemDate
+                        )
+                    )
                 }
-
-                val dateTime = if (tipo == "Tasca") {
-                    fmt.format(itemDate)
-                } else {
-                    // Para eventos concatenamos inicio y fin
-                    val tsEnd = doc.getTimestamp("data_fi") ?: tsDate
-                    "${fmt.format(itemDate)} - ${fmt.format(tsEnd.toDate())}"
-                }
-
-                calendarItems.add(
-                    CalendarItem(id, title, description, dateTime, tipo, itemDate)
-                )
             }
             calendarItems.sortBy { it.fechaOrdenacion }
             adapter.notifyDataSetChanged()
         }
 
-        // Hacemos dos consultas separadas (una para tareas, otra para eventos)
         db.collection("usuarios").document(uid).collection("tasques")
-            // Firestore permite consultas por rango sobre timestamp:
             .whereGreaterThanOrEqualTo("data_limit", startOfDay.time)
             .whereLessThanOrEqualTo("data_limit", endOfDay.time)
-            .get()
-            .addOnSuccessListener { procesarDocumentos(it, "Tasca") }
+            .get().addOnSuccessListener { procesar(it, "Tasca") }
 
         db.collection("usuarios").document(uid).collection("esdeveniments")
             .whereGreaterThanOrEqualTo("data_inici", startOfDay.time)
             .whereLessThanOrEqualTo("data_inici", endOfDay.time)
-            .get()
-            .addOnSuccessListener {
-                procesarDocumentos(it, "Esdeveniment")
+            .get().addOnSuccessListener { procesar(it, "Esdeveniment") }
+    }
+
+    private fun loadEventDays() {
+        val db = FirebaseFirestore.getInstance()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        // 1) Tareas
+        db.collection("usuarios").document(uid).collection("tasques")
+            .get().addOnSuccessListener { snap ->
+                snap.documents.forEach { doc ->
+                    doc.getTimestamp("data_limit")?.toDate()?.let { date ->
+                        val cal = Calendar.getInstance().apply {
+                            time = date
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
+                        allEventDays += CalendarDay.from(cal.time)
+                    }
+                }
+                // tras la primera carga
+                calendarView.addDecorator(EventDecorator(Color.RED, allEventDays.toList()))
+                calendarView.invalidateDecorators()
+            }
+
+        // 2) Eventos
+        db.collection("usuarios").document(uid).collection("esdeveniments")
+            .get().addOnSuccessListener { snap ->
+                snap.documents.forEach { doc ->
+                    doc.getTimestamp("data_inici")?.toDate()?.let { date ->
+                        val cal = Calendar.getInstance().apply {
+                            time = date
+                            set(Calendar.HOUR_OF_DAY, 0)
+                            set(Calendar.MINUTE, 0)
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
+                        allEventDays += CalendarDay.from(cal.time)
+                    }
+                }
+                // refrescamos con el set completo
+                calendarView.removeDecorators()
+                calendarView.addDecorator(EventDecorator(Color.RED, allEventDays.toList()))
+                calendarView.invalidateDecorators()
             }
     }
+
+    // --------------------------------------------------
+    private fun mostrarOpcionesAgregar() {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        builder.setTitle("Selecciona una opción")
+        val options = arrayOf("Tasca", "Esdeveniment")
+        builder.setSingleChoiceItems(options, -1) { dialog, which ->
+            dialog.dismiss()
+            if (which == 0) mostrarDialogAfegirTasca() else mostrarDialogAfegirEvent()
+        }
+        builder.setNegativeButton("Cancelar") { d, _ -> d.dismiss() }
+        builder.show()
+    }
+
     @SuppressLint("MissingInflatedId")
     fun mostrarDialogAfegirTasca() {
         val builder = AlertDialog.Builder(requireContext())
@@ -293,14 +323,14 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                     .addOnSuccessListener { docRef ->
                         mostrarToast("Tasca guardada")
                         dialog.dismiss()
-                        cargareventosytareas(calendarItems, adapter, selectedDate)
+                        cargareventosytareas(selectedDate)
 
                         recordatoriSeleccionat?.let { ts ->
                             rescheduleAlarm(
-                                docId     = docRef.id,
-                                type      = "tasques",
-                                title     = titol,
-                                desc      = descripcio,
+                                docId = docRef.id,
+                                type = "tasques",
+                                title = titol,
+                                desc = descripcio,
                                 triggerAt = ts.toDate().time
                             )
                         }
@@ -422,15 +452,15 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                     .addOnSuccessListener { docRef ->
                         mostrarToast("Esdeveniment guardat")
                         dialog.dismiss()
-                        cargareventosytareas(calendarItems, adapter, selectedDate)
+                        cargareventosytareas(selectedDate)
 
                         recordatoriSeleccionat?.let { ts ->
                             // Llama a tu helper y ya se encarga de cancelar/la alarma
                             rescheduleAlarm(
-                                docId     = docRef.id,
-                                type      = "esdeveniments",
-                                title     = titol,
-                                desc      = descripcio,
+                                docId = docRef.id,
+                                type = "esdeveniments",
+                                title = titol,
+                                desc = descripcio,
                                 triggerAt = ts.toDate().time
                             )
                         }
@@ -535,7 +565,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             val newDesc = edtDesc.text.toString().trim()
 
             if (newTitol.isEmpty()) {
-                Toast.makeText(requireContext(), "El títol no pot estar buit", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    requireContext(),
+                    "El títol no pot estar buit",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 return@setOnClickListener
             }
@@ -563,22 +597,24 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
             docRef.update(updates)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Tasca actualitzada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Tasca actualitzada", Toast.LENGTH_SHORT)
+                        .show()
                     dialog.dismiss()
-                    cargareventosytareas(calendarItems, adapter, selectedDate)
+                    cargareventosytareas(selectedDate)
 
                     recordatoriSeleccionat?.let { ts ->
                         rescheduleAlarm(
-                            docId     = item.id,
-                            type      = "tasques",
-                            title     = newTitol,
-                            desc      = newDesc,
+                            docId = item.id,
+                            type = "tasques",
+                            title = newTitol,
+                            desc = newDesc,
                             triggerAt = ts.toDate().time
                         )
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error actualitzant", Toast.LENGTH_SHORT)
+                        .show()
                 }
         }
 
@@ -670,7 +706,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             val newTitle = edtTitol.text.toString().trim()
             val newDesc = edtDesc.text.toString().trim()
             if (newTitle.isEmpty()) {
-                Toast.makeText(requireContext(), "El títol no pot estar buit", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    requireContext(),
+                    "El títol no pot estar buit",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
                 return@setOnClickListener
             }
@@ -703,13 +743,13 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 .addOnSuccessListener { docRef ->
                     Toast.makeText(requireContext(), "… actualizado", LENGTH_SHORT).show()
                     dialog.dismiss()
-                    cargareventosytareas(calendarItems, adapter, selectedDate)
+                    cargareventosytareas(selectedDate)
                     recordatoriSeleccionat?.let { ts ->
                         rescheduleAlarm(
-                            docId     = item.id,
-                            type      = "esdeveniments",           // o "tasques"
-                            title     = newTitle,
-                            desc      = newDesc,
+                            docId = item.id,
+                            type = "esdeveniments",           // o "tasques"
+                            title = newTitle,
+                            desc = newDesc,
                             triggerAt = ts.toDate().time
                         )
                     }
@@ -722,9 +762,11 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         dialog.show()
     }
+
     private fun mostrarToast(mensaje: String) {
         Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
     }
+
     fun Context.showDateTimePicker(
         initial: Calendar = Calendar.getInstance(),
         minDate: Long? = null,
@@ -746,6 +788,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
             minDate?.let { datePicker.minDate = it }
         }.show()
     }
+
     private fun rescheduleAlarm(
         docId: String,
         type: String,        // "tasques" o "esdeveniments"
@@ -794,6 +837,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         // Programa
         am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pi)
     }
+
+
     override fun onDelete(item: CalendarItem) {
         AlertDialog.Builder(requireContext())
             .setTitle("Borrar ${item.tipo}")

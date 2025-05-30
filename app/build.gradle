@@ -51,29 +51,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:21.0.1'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.4.0'
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
-
+    implementation 'com.prolificinteractive:material-calendarview:1.4.3'
     implementation 'com.github.bumptech.glide:glide:4.15.1' // O la última versión estable
     annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1' // Misma versión que la anterior
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
 
-    //implementation 'com.google.firebase:firebase-auth:21.1.0'
-
-    //implementation 'com.google.firebase:firebase-admin:9.2.0'
-
-    // Versión estable para versiones antiguas de Android Studio
-
-    // Firebase Firestore (para trabajar con bases de datos Firestore)
-    //implementation 'com.google.firebase:firebase-firestore-ktx:24.4.1'
-    // Versión estable para versiones antiguas de Android Studio
-    // Google Play Services para Google Sign-In
-    //implementation 'com.google.android.gms:play-services-auth:20.6.0'
-    // Versión compatible con versiones antiguas de Android Studio
-
-    // Para usar ActivityResultContracts (para manejo de resultados de Google Sign-In)
-    /*implementation 'androidx.activity:activity-ktx:1.3.1' */ // Compatible con versiones antiguas
-    // Añade las dependencias de AndroidX Lifecycle
-    /*implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
-    implementation 'androidx.lifecycle:lifecycle-process:2.5.1'
-    implementation 'androidx.startup:startup-runtime:1.1.1'*/
 
 
 }
