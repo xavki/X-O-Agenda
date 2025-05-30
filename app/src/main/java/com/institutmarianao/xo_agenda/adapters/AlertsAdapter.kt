@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.institutmarianao.xo_agenda.R
 import com.institutmarianao.xo_agenda.models.AlertItem
 
@@ -67,6 +68,10 @@ class AlertsAdapter(
 
 
     fun markRead(position: Int) {
+        // 1) Validamos posición
+        if (position == RecyclerView.NO_POSITION || position < 0 || position >= items.size) return
+
+        // 2) Actualizamos estado
         val item = items[position]
         if (!item.isRead) {
             item.isRead = true

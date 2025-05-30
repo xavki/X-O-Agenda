@@ -64,6 +64,8 @@ class CalendariFragment : Fragment(), OnItemActionListener {
     private var dataIniciSeleccionada: Timestamp? = null
     private var dataFinalSeleccionada: Timestamp? = null
     private var recordatoriSeleccionat: Timestamp? = null
+    private var selectedDateCal: Calendar = Calendar.getInstance()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -105,6 +107,9 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }
+            selectedDateCal = Calendar.getInstance().apply { time = date.date }
+            // recarga lista
+
             txtDay.text = dateFormat.format(cal.time)
             cargareventosytareas(cal)
         }
@@ -596,7 +601,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         txtRecord.setOnClickListener {
             requireContext().showDateTimePicker(
                 initial = calendar,
-                minDate = dataLimitSeleccionada?.toDate()?.time ?: System.currentTimeMillis()
+                minDate = System.currentTimeMillis()
             ) { date ->
                 calendar.time = date
                 txtRecord.text = dateFormat.format(date)
@@ -662,6 +667,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                         .show()
                 }
         }
+
 
         dialog.show()
     }
