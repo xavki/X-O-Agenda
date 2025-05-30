@@ -28,6 +28,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var iniciarsession: Button
     private lateinit var db: FirebaseFirestore
     private lateinit var termino: CheckBox
+    private val PASSWORD_PATTERN = Regex("^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{6,}$")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +59,7 @@ class SignUpActivity : AppCompatActivity() {
                     override fun onClick(widget: View) {
                         val intent = Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("https://www.tusitio.com/terminos")
+                            Uri.parse("https://en.wikipedia.org/wiki/Terms_of_service")
                         )
                         startActivity(intent)
                     }
@@ -68,7 +69,7 @@ class SignUpActivity : AppCompatActivity() {
         spannableString.setSpan(object : ClickableSpan() {
             override fun onClick(widget: View) {
                 val intent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tusitio.com/privacidad"))
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://en.wikipedia.org/wiki/Privacy_policy"))
                 startActivity(intent)
             }
         }, privacyStart, privacyEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -116,6 +117,12 @@ class SignUpActivity : AppCompatActivity() {
                 password.requestFocus()
                 isValid = false
             }
+            // Nueva comprobación de mayúscula + especial
+            if (isValid && !PASSWORD_PATTERN.matches(passwordText)) {
+                password.error = "La contraseña debe tener ≥6 caracteres, 1 mayúscula y 1 carácter especial"
+                password.requestFocus()
+                isValid = false
+            }
 
             if (confirmPasswordText.isEmpty()) {
                 confirmpassword.error = "Introduce tu contraseña"
@@ -129,7 +136,12 @@ class SignUpActivity : AppCompatActivity() {
                 isValid = false
             }
 
-
+            if (!termino.isChecked) {
+                // Puedes usar error en el CheckBox o un Toast
+                Toast.makeText(this, "Debes aceptar los Términos de Servicio", Toast.LENGTH_SHORT).show()
+                if (isValid) termino.requestFocus()
+                isValid = false
+            }
             if (!isValid) return@setOnClickListener
 
             auth.createUserWithEmailAndPassword(emailText, passwordText)

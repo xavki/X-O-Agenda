@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
+import android.util.Patterns
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
@@ -48,7 +49,10 @@ class LoginActivity : AppCompatActivity() {
     private var isEyeOpen = false
     private lateinit var editTextPassword: EditText
     private lateinit var firestore: FirebaseFirestore // <--- Declarada aquí, ¡muy bien!
-
+    private companion object {
+        // Al menos 6 caracteres, 1 mayúscula y 1 carácter especial
+        val PASSWORD_PATTERN = Regex("^(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{6,}$")
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -129,12 +133,22 @@ class LoginActivity : AppCompatActivity() {
                 }
                 isValid = false
             }
-
+            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                emailEditText.error = "Email no válido"
+                if (isValid) emailEditText.requestFocus()
+                isValid = false
+            }
             if (password.isEmpty()) {
                 editTextPassword.error = "Introduce tu contraseña"
                 if (isValid) {
                     editTextPassword.requestFocus()
                 }
+                isValid = false
+            }
+            // Contraseña cumpla patrón (≥6 chars, 1 mayúscula y 1 especial)
+            if (!PASSWORD_PATTERN.matches(password)) {
+                editTextPassword.error = "La contraseña debe tener ≥6 caracteres, 1 mayúscula y 1 carácter especial"
+                if (isValid) editTextPassword.requestFocus()
                 isValid = false
             }
 

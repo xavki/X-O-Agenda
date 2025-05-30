@@ -5,14 +5,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.EmailAuthProvider
 import com.institutmarianao.xo_agenda.login.LoginActivity
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +31,8 @@ class SettingFragments : Fragment() {
     private lateinit var txtCloseS: TextView
     private lateinit var txtPairGoogle: TextView
     private lateinit var txtDeleteAcc: TextView
+    private var pendingPassword: String? = null
+
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -153,19 +159,15 @@ class SettingFragments : Fragment() {
                 ?: Log.e("SettingFragments", "Hosting Activity is not MenuActivity or is null") // Log de error si no es MenuActivity
         }
 
-        // Lógica para eliminar la cuenta
+        // Eliminar cuenta: primer diálogo
         txtDeleteAcc.setOnClickListener {
-            // Primer AlertDialog de confirmación
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("¿Estás seguro de que quieres eliminar tu cuenta?")
+            AlertDialog.Builder(requireContext())
+                .setTitle("¿Estás seguro de que quieres eliminar tu cuenta?")
                 .setMessage("Esta acción no se puede deshacer.")
                 .setPositiveButton("Sí") { _, _ ->
-                    // Si el usuario confirma, mostrar la segunda confirmación
-                    showSecondConfirmationDialog()
+                    promptPasswordAndConfirmDelete()
                 }
-                .setNegativeButton("No") { dialog, _ ->
-                    dialog.dismiss() // Cierra el diálogo si el usuario no quiere eliminar la cuenta
-                }
+                .setNegativeButton("No", null)
                 .show()
         }
 
@@ -210,63 +212,68 @@ class SettingFragments : Fragment() {
         val sharedPreferences = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", "es") ?: "es"  // Por defecto, Español
     }
+    private fun promptPasswordAndConfirmDelete() {
+        val currentEmail = auth.currentUser?.email ?: return
+        val input = EditText(requireContext()).apply {
+            hint = "Contraseña"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Vuelve a introducir tu contraseña")
+            .setView(input)
+            .setPositiveButton("Continuar") { _, _ ->
+                val pwd = input.text.toString().trim()
+                if (pwd.isEmpty()) {
+                    Toast.makeText(requireContext(), "La contraseña no puede estar vacía", Toast.LENGTH_SHORT).show()
+                } else {
+                    showSecondConfirmationDialog(currentEmail, pwd)
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
 
     // Mostrar el segundo AlertDialog con el nombre del usuario
-    private fun showSecondConfirmationDialog() {
-        val currentUser = auth.currentUser
-        currentUser?.let {
-            // Obtener el nombre del usuario (si está disponible)
-            val userName = it.displayName ?: "Usuario"
-
-            val builder = AlertDialog.Builder(requireContext())
-            builder.setTitle("Confirmar eliminación")
-                .setMessage("¿Seguro que deseas eliminar la cuenta de $userName? Esta acción es irreversible.")
-                .setPositiveButton("Eliminar cuenta") { _, _ ->
-                    deleteUserAccount()
-                }
-                .setNegativeButton("Cancelar") { dialog, _ ->
-                    dialog.dismiss() // Si el usuario cancela, cierra el diálogo
-                }
-                .show()
-        }
+    private fun showSecondConfirmationDialog(email: String, password: String) {
+        val userName = auth.currentUser?.displayName ?: "Usuario"
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirmar eliminación")
+            .setMessage("¿Seguro que deseas eliminar la cuenta de $userName? Esta acción es irreversible.")
+            .setPositiveButton("Eliminar cuenta") { _, _ ->
+                deleteUserAccount(email, password)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
+
 
     // Eliminar la cuenta de Firebase y la base de datos (si se utiliza Firestore)
-    private fun deleteUserAccount() {
-        val currentUser = auth.currentUser
-        currentUser?.let {
-            // Eliminar datos de la base de datos (por ejemplo, Firestore)
-            val userId = currentUser.uid // Obtenemos el UID del usuario
-            val db = Firebase.firestore // Obtenemos la instancia de Firestore
-            // Éxito en la operación previa (probablemente reautenticación)
-            // Ahora procedemos a eliminar datos y cuenta.
-            val userDocumentRef = db.collection("usuarios").document(userId)
-            // 1. Referencia al documento del usuario en Firestore (ejemplo: /users/{uid})
-            // **ADAPTA ESTE PATH ('users') AL DE TU BASE DE DATOS SI ES DIFERENTE**
-            firestore.collection("usuarios").document(userId).delete()
-            userDocumentRef.delete()
-                .addOnSuccessListener {
-                    userDocumentRef.delete()
-                    // Eliminar la cuenta en Firebase Authentication
-                    currentUser.delete()
-                        .addOnSuccessListener {
-                            // Después de eliminar la cuenta, redirigir al login
-                            val intent = Intent(requireContext(), LoginActivity::class.java)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            startActivity(intent)
-                            requireActivity().finish()
-                        }
-                        .addOnFailureListener { exception ->
-                            // Si ocurre un error al eliminar la cuenta de Firebase Authentication
-                            showErrorDialog("Error al eliminar la cuenta: ${exception.message}")
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    // Si ocurre un error al eliminar la cuenta de Firestore
-                    showErrorDialog("Error al eliminar los datos de la base de datos: ${exception.message}")
-                }
-        }
+    private fun deleteUserAccount(email: String, password: String) {
+        val user = auth.currentUser ?: return
+        val credential = EmailAuthProvider.getCredential(email, password)
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                val userId = user.uid
+                firestore.collection("usuarios").document(userId)
+                    .delete()
+                    .addOnCompleteListener {
+                        user.delete()
+                            .addOnSuccessListener {
+                                val intent = Intent(requireContext(), LoginActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                                requireActivity().finish()
+                            }
+                            .addOnFailureListener { e -> showErrorDialog("Error al eliminar la cuenta: ${e.message}") }
+                    }
+                    .addOnFailureListener { e -> showErrorDialog("Error al eliminar datos en Firestore: ${e.message}") }
+            }
+            .addOnFailureListener { e -> showErrorDialog("Reautenticación fallida: ${e.message}") }
     }
+
+
 
     // Mostrar un mensaje de error si la eliminación falla
     private fun showErrorDialog(message: String) {
