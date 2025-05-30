@@ -29,6 +29,7 @@ import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -123,58 +124,91 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
 
     private fun cargareventosytareas(filterDate: Calendar) {
-        val db = FirebaseFirestore.getInstance()
+        val db  = FirebaseFirestore.getInstance()
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        // Rango día
-        val startOfDay = filterDate.clone() as Calendar
-        startOfDay.set(Calendar.HOUR_OF_DAY, 0); startOfDay.set(Calendar.MINUTE, 0)
-        startOfDay.set(Calendar.SECOND, 0); startOfDay.set(Calendar.MILLISECOND, 0)
-        val endOfDay = filterDate.clone() as Calendar
-        endOfDay.set(Calendar.HOUR_OF_DAY, 23); endOfDay.set(Calendar.MINUTE, 59)
-        endOfDay.set(Calendar.SECOND, 59); endOfDay.set(Calendar.MILLISECOND, 999)
+        // 1) Límites del día
+        val startOfDay = Calendar.getInstance().apply {
+            time = filterDate.time
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+        val endOfDay = Calendar.getInstance().apply {
+            time = filterDate.time
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.time
 
         calendarItems.clear()
 
-        fun procesar(docs: QuerySnapshot, tipo: String) {
-            val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
-            for (doc in docs) {
-                val ts = if (tipo == "Tasca")
-                    doc.getTimestamp("data_limit")
-                else
-                    doc.getTimestamp("data_inici")
-                ts?.toDate()?.takeIf { it in startOfDay.time..endOfDay.time }?.let { itemDate ->
-                    val fechaText = if (tipo == "Tasca") {
-                        fmt.format(itemDate)
-                    } else {
-                        val tsEnd = doc.getTimestamp("data_fi")?.toDate() ?: itemDate
-                        "${fmt.format(itemDate)} - ${fmt.format(tsEnd)}"
+        // Query para tareas
+        val tareasQuery = db.collection("usuarios")
+            .document(uid)
+            .collection("tasques")
+            .whereGreaterThanOrEqualTo("data_limit", startOfDay)
+            .whereLessThanOrEqualTo(   "data_limit", endOfDay)
+            .get()
+
+        // Query para eventos (solo desigualdad en data_inici)
+        val eventosQuery = db.collection("usuarios")
+            .document(uid)
+            .collection("esdeveniments")
+            .whereLessThanOrEqualTo("data_inici", endOfDay)
+            .get()
+
+        // Esperamos a que ambas consultas terminen antes de actualizar la UI
+        Tasks.whenAllSuccess<QuerySnapshot>(tareasQuery, eventosQuery)
+            .addOnSuccessListener { results ->
+                val snapTareas  = results[0]
+                val snapEventos = results[1]
+
+                // Procesar tareas
+                val fmt = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "ES"))
+                for (doc in snapTareas.documents) {
+                    doc.getTimestamp("data_limit")?.toDate()?.takeIf { it in startOfDay..endOfDay }?.let { fecha ->
+                        calendarItems.add(
+                            CalendarItem(
+                                id              = doc.id,
+                                title           = doc.getString("titol") ?: "",
+                                description     = doc.getString("descripció") ?: "",
+                                dateTimeText    = fmt.format(fecha),
+                                tipo            = "Tasca",
+                                fechaOrdenacion = fecha
+                            )
+                        )
                     }
+                }
+
+                // Procesar eventos multidía
+                for (doc in snapEventos.documents) {
+                    val tsInicio = doc.getTimestamp("data_inici")?.toDate() ?: continue
+                    val tsFin    = doc.getTimestamp("data_fi")?.toDate()    ?: tsInicio
+
+                    // descartamos los que no solapen el día
+                    if (tsFin < startOfDay) continue
+                    if (tsInicio > endOfDay) continue
+
+                    val fechaText = "${fmt.format(tsInicio)} - ${fmt.format(tsFin)}"
                     calendarItems.add(
                         CalendarItem(
-                            doc.id,
-                            doc.getString("titol") ?: "",
-                            doc.getString("descripció") ?: "",
-                            fechaText,
-                            tipo,
-                            itemDate
+                            id              = doc.id,
+                            title           = doc.getString("titol") ?: "",
+                            description     = doc.getString("descripció") ?: "",
+                            dateTimeText    = fechaText,
+                            tipo            = "Esdeveniment",
+                            fechaOrdenacion = tsInicio
                         )
                     )
                 }
+
+                // Ordenamos y notificamos UNA sola vez
+                calendarItems.sortBy { it.fechaOrdenacion }
+                adapter.notifyDataSetChanged()
             }
-            calendarItems.sortBy { it.fechaOrdenacion }
-            adapter.notifyDataSetChanged()
-        }
-
-        db.collection("usuarios").document(uid).collection("tasques")
-            .whereGreaterThanOrEqualTo("data_limit", startOfDay.time)
-            .whereLessThanOrEqualTo("data_limit", endOfDay.time)
-            .get().addOnSuccessListener { procesar(it, "Tasca") }
-
-        db.collection("usuarios").document(uid).collection("esdeveniments")
-            .whereGreaterThanOrEqualTo("data_inici", startOfDay.time)
-            .whereLessThanOrEqualTo("data_inici", endOfDay.time)
-            .get().addOnSuccessListener { procesar(it, "Esdeveniment") }
     }
 
     private fun loadEventDays() {
@@ -201,19 +235,30 @@ class CalendariFragment : Fragment(), OnItemActionListener {
                 calendarView.invalidateDecorators()
             }
 
-        // 2) Eventos
+        // 2) Eventos multidía
         db.collection("usuarios").document(uid).collection("esdeveniments")
             .get().addOnSuccessListener { snap ->
                 snap.documents.forEach { doc ->
-                    doc.getTimestamp("data_inici")?.toDate()?.let { date ->
-                        val cal = Calendar.getInstance().apply {
-                            time = date
-                            set(Calendar.HOUR_OF_DAY, 0)
-                            set(Calendar.MINUTE, 0)
-                            set(Calendar.SECOND, 0)
-                            set(Calendar.MILLISECOND, 0)
-                        }
+                    // Leemos inicio y fin (si fin es nulo, asumimos un evento de un solo día)
+                    val inicioDate = doc.getTimestamp("data_inici")?.toDate() ?: return@forEach
+                    val finDate = doc.getTimestamp("data_fi")?.toDate() ?: inicioDate
+
+                    // Normalizamos horas a medianoche
+                    val cal = Calendar.getInstance().apply {
+                        time = inicioDate
+                        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                    }
+                    val calFin = Calendar.getInstance().apply {
+                        time = finDate
+                        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                    }
+
+                    // Añadimos cada día del rango [inicio, fin]
+                    while (!cal.after(calFin)) {
                         allEventDays += CalendarDay.from(cal.time)
+                        cal.add(Calendar.DAY_OF_MONTH, 1)
                     }
                 }
                 // refrescamos con el set completo
