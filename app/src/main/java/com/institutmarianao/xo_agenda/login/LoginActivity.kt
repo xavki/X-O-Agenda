@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -30,6 +31,8 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import com.institutmarianao.xo_agenda.MenuActivity
 import com.institutmarianao.xo_agenda.R
+
+
 
 class LoginActivity : AppCompatActivity() {
 
@@ -86,9 +89,6 @@ class LoginActivity : AppCompatActivity() {
 
         }
 
-        btnGoogle.setOnClickListener {
-            /* FALTA POR IMPLEMENTAR*/
-        }
 
         txtNoPass.setOnClickListener {
             val intent = Intent(this, RecoveryActivity::class.java)
@@ -223,6 +223,7 @@ class LoginActivity : AppCompatActivity() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail() // Puedes pedir el email si lo necesitas
             .requestProfile() // Puedes pedir el perfil (nombre, foto, etc.)
+            .requestScopes(Scope("https://www.googleapis.com/auth/calendar.events"))
             .build()
 
         // Crea el cliente de inicio de sesión de Google
@@ -254,8 +255,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
 
-        // Encuentra el botón y establece el OnClickListener
         val btnGoogle = findViewById<Button>(R.id.btnGoogle)
+        // Encuentra el botón y establece el OnClickListener
         btnGoogle.setOnClickListener {
             // Inicia el flujo de inicio de sesión de Google
             signInWithGoogle()
