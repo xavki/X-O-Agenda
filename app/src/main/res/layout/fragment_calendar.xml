@@ -13,8 +13,7 @@
         android:backgroundTint="#00FFFFFF"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtMenuCal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_search" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtMenuCal"
@@ -84,7 +83,7 @@
         android:layout_height="40dp"
         android:gravity="center"
         android:paddingLeft="5dp"
-        android:text="TextView"
+        android:text="Fecha"
         android:textAlignment="viewStart"
         android:textColor="@color/fontMain"
         android:textSize="16sp"

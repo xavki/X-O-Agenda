@@ -6,6 +6,29 @@
     android:layout_height="match_parent"
     tools:ignore="ExtraText">
 
+    <View
+        android:id="@+id/lineaGris10"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#D3D3D3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtGenerarImportador" />
+
+    <TextView
+        android:id="@+id/txtGenerarImportador"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:fontFamily="sans-serif-medium"
+        android:paddingLeft="15dp"
+        android:paddingTop="15dp"
+        android:text="@string/generar_import"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lineaGris5" />
+
     <TextView
         android:id="@+id/txtDeleteAcc"
         android:layout_width="0dp"
@@ -18,7 +41,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lineaGris5" />
+        app:layout_constraintTop_toBottomOf="@+id/txtGenerarImportador" />
 
     <View
         android:id="@+id/lineaGris6"

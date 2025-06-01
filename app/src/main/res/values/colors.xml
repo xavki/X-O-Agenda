@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="fontMain">#F65E69</color>
+    <color name="colorDiaSeleccionado">#FFAFB5</color>
     <color name="btnGoogle">#3B5897</color>
     <color name="lightGray">#AEA4A4</color>
 </resources>

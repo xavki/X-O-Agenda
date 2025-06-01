@@ -27,6 +27,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.tasks.Tasks
@@ -94,6 +95,10 @@ class CalendariFragment : Fragment(), OnItemActionListener {
         adapter = CalendarItemAdapter(calendarItems, this)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
+
+        calendarView.setSelectionColor(
+            ContextCompat.getColor(requireContext(), R.color.colorDiaSeleccionado)
+        )
 
         // 1) Carga global de fechas para decorar
         loadEventDays()
@@ -414,6 +419,7 @@ class CalendariFragment : Fragment(), OnItemActionListener {
 
         // Selección de data límit
         textDataLimit.setOnClickListener {
+
             requireContext().showDateTimePicker(
                 initial = calendarInici,
                 minDate = Calendar.getInstance().timeInMillis

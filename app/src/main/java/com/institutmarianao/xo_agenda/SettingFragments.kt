@@ -16,13 +16,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.EmailAuthProvider
 import com.institutmarianao.xo_agenda.login.LoginActivity
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.google.firebase.functions.FirebaseFunctions
+import com.google.firebase.functions.ktx.functions
+import kotlinx.coroutines.tasks.await
 
 class SettingFragments : Fragment() {
 
@@ -31,6 +36,7 @@ class SettingFragments : Fragment() {
     private lateinit var txtCloseS: TextView
     private lateinit var txtPairGoogle: TextView
     private lateinit var txtDeleteAcc: TextView
+    private lateinit var txtGenerarImp: TextView
     private var pendingPassword: String? = null
 
 
@@ -49,6 +55,7 @@ class SettingFragments : Fragment() {
         txtCloseS = view.findViewById(R.id.txtCloseS)
         txtPairGoogle = view.findViewById(R.id.txtPairGoogle)
         txtDeleteAcc = view.findViewById(R.id.txtDeleteAcc)
+        txtGenerarImp = view.findViewById(R.id.txtGenerarImportador)
 
         // Botón para abrir el menú lateral
         val btnOpenMenu = view.findViewById<ImageView>(R.id.btnOpenMenu)
@@ -155,9 +162,62 @@ class SettingFragments : Fragment() {
         txtPairGoogle.setOnClickListener {
             Log.d("SettingFragments", "txtPairGoogle clicked") // Log para verificar el clic
             // Llama al método de la Activity para iniciar el flujo de Google Calendar
-            //(activity as? MenuActivity)?.startGoogleCalendarSyncFlow()
+            (activity as? MenuActivity)?.startGoogleCalendarSyncFlow()
                 ?: Log.e("SettingFragments", "Hosting Activity is not MenuActivity or is null") // Log de error si no es MenuActivity
         }
+
+        txtGenerarImp.setOnClickListener {
+            val user = FirebaseAuth.getInstance().currentUser
+
+            if (user != null) {
+                val userId = user.uid
+                val userEmail = user.email
+
+                val data = hashMapOf(
+                    "userId" to userId,
+                    "userEmail" to userEmail
+                )
+
+                val functions = FirebaseFunctions.getInstance()
+
+                lifecycleScope.launch {
+                    try {
+                        val result = withContext(Dispatchers.IO) {
+                            functions
+                                .getHttpsCallable("generateAndEmailCalendar")
+                                .call(data)
+                                .await()
+                        }
+
+                        val response = result.data as? Map<String, Any>
+                        val status = response?.get("status") as? String
+                        val message = response?.get("message") as? String
+
+                        if (status == "success") {
+                            Toast.makeText(
+                                requireContext(), // ✅ CONTEXTO CORRECTO EN UN FRAGMENT
+                                message ?: "Archivo generado y correo enviado.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        } else {
+                            Toast.makeText(
+                                requireContext(),
+                                message ?: "Error al generar el archivo o enviar el correo.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        }
+
+
 
         // Eliminar cuenta: primer diálogo
         txtDeleteAcc.setOnClickListener {

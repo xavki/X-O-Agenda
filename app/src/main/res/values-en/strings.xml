@@ -22,6 +22,7 @@
     <string name="alertas">Alerts</string>
     <string name="configuraci_n">Configuration</string>
     <string name="vincular_calendario_de_google">Link Google Calendar</string>
+    <string name="generar_import">Generate importable file</string>
     <string name="idioma_espa_ol">Language : Spanish</string>
     <string name="cerrar_session">Close Session</string>
     <string name="eliminar_cuenta">Delete Account!</string>
