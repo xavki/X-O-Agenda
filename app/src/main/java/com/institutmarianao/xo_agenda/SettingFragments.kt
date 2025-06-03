@@ -30,6 +30,8 @@ import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.functions.ktx.functions
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.text.SimpleDateFormat
 
 class SettingFragments : Fragment() {
 
@@ -173,51 +175,77 @@ class SettingFragments : Fragment() {
 
             if (user != null) {
                 val userId = user.uid
-                val userEmail = user.email
-
-                val data = hashMapOf(
-                    "userId" to userId,
-                    "userEmail" to userEmail
-                )
-
-                val functions = FirebaseFunctions.getInstance()
+                val db = FirebaseFirestore.getInstance()
+                val eventosRef = db.collection("usuarios").document(userId).collection("esdeveniments")
+                val tasquesRef = db.collection("usuarios").document(userId).collection("tasques")
 
                 lifecycleScope.launch {
                     try {
-                        val result = withContext(Dispatchers.IO) {
-                            functions
-                                .getHttpsCallable("generateAndEmailCalendar")
-                                .call(data)
-                                .await()
+                        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.GERMAN)
+                        val timeFormat = SimpleDateFormat("hh:mm a", Locale.GERMAN)
+
+                        val builder = StringBuilder()
+                        builder.append("Subject,Start Date,Start Time,End Date,End Time,Description,Location\n")
+
+                        // 🔹 Afegir esdeveniments
+                        val eventosSnapshot = withContext(Dispatchers.IO) {
+                            eventosRef.get().await()
                         }
 
-                        val response = result.data as? Map<String, Any>
-                        val status = response?.get("status") as? String
-                        val message = response?.get("message") as? String
+                        for (doc in eventosSnapshot.documents) {
+                            val titol = doc.getString("titol") ?: "Sense títol"
+                            val descripcio = doc.getString("descripció") ?: ""
+                            val dataInici = doc.getTimestamp("data_inici")?.toDate()
+                            val dataFi = doc.getTimestamp("data_fi")?.toDate()
 
-                        if (status == "success") {
-                            Toast.makeText(
-                                requireContext(), // ✅ CONTEXTO CORRECTO EN UN FRAGMENT
-                                message ?: "Archivo generado y correo enviado.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                requireContext(),
-                                message ?: "Error al generar el archivo o enviar el correo.",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            if (dataInici != null && dataFi != null) {
+                                builder.append(
+                                    "${titol.replace(",", " ")},${dateFormat.format(dataInici)},${timeFormat.format(dataInici)}," +
+                                            "${dateFormat.format(dataFi)},${timeFormat.format(dataFi)}," +
+                                            "${descripcio.replace(",", " ")},\n"
+                                )
+                            }
                         }
+
+                        // 🔹 Afegir tasques com a esdeveniments d’un dia
+                        val tasquesSnapshot = withContext(Dispatchers.IO) {
+                            tasquesRef.get().await()
+                        }
+
+                        for (doc in tasquesSnapshot.documents) {
+                            val titol = doc.getString("titol") ?: "Tasca"
+                            val descripcio = doc.getString("descripció") ?: ""
+                            val dataLimit = doc.getTimestamp("data_limit")?.toDate()
+
+                            if (dataLimit != null) {
+                                val startDate = dateFormat.format(dataLimit)
+                                val startTime = "09:00 AM"
+                                val endTime = "09:30 AM"
+
+                                builder.append(
+                                    "${titol.replace(",", " ")} (Tasca),$startDate,$startTime,$startDate,$endTime," +
+                                            "${descripcio.replace(",", " ")},\n"
+                                )
+                            }
+                        }
+
+                        // 🔸 Guardar el CSV
+                        val fileName = "importacio_google_calendar.csv"
+                        val file = File(requireContext().getExternalFilesDir(null), fileName)
+
+                        withContext(Dispatchers.IO) {
+                            file.writeText(builder.toString())
+                        }
+
+                        Toast.makeText(requireContext(), "CSV generat a: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+
                     } catch (e: Exception) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Error: ${e.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
         }
+
 
 
 
