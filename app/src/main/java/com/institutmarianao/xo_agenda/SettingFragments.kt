@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 
@@ -28,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.Timestamp
 import com.google.firebase.functions.ktx.functions
 import kotlinx.coroutines.tasks.await
 import java.io.File
@@ -175,69 +177,61 @@ class SettingFragments : Fragment() {
 
             if (user != null) {
                 val userId = user.uid
-                val db = FirebaseFirestore.getInstance()
-                val eventosRef = db.collection("usuarios").document(userId).collection("esdeveniments")
-                val tasquesRef = db.collection("usuarios").document(userId).collection("tasques")
+                val firestore = FirebaseFirestore.getInstance()
 
                 lifecycleScope.launch {
                     try {
-                        val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.GERMAN)
-                        val timeFormat = SimpleDateFormat("hh:mm a", Locale.GERMAN)
+                        // 🔹 1. Llegim esdeveniments i tasques
+                        val events = firestore.collection("usuarios/$userId/esdeveniments").get().await()
+                        val tasks = firestore.collection("usuarios/$userId/tasques").get().await()
 
-                        val builder = StringBuilder()
-                        builder.append("Subject,Start Date,Start Time,End Date,End Time,Description,Location\n")
+                        // 🔹 2. Preparem el CSV
+                        val csvBuilder = StringBuilder()
+                        csvBuilder.append("Subject,Start Date,Start Time,End Date,End Time,Description,Location\n")
 
-                        // 🔹 Afegir esdeveniments
-                        val eventosSnapshot = withContext(Dispatchers.IO) {
-                            eventosRef.get().await()
+                        for (doc in events) {
+                            val d = doc.data
+                            val start = (d["data_inici"] as? Timestamp)?.toDate() ?: continue
+                            val end = (d["data_fi"] as? Timestamp)?.toDate() ?: continue
+                            val titol = d["titol"] as? String ?: ""
+                            val desc = d["descripció"] as? String ?: ""
+
+                            csvBuilder.append("${titol},${SimpleDateFormat("MM/dd/yyyy").format(start)},${SimpleDateFormat("hh:mm a").format(start)},")
+                            csvBuilder.append("${SimpleDateFormat("MM/dd/yyyy").format(end)},${SimpleDateFormat("hh:mm a").format(end)},${desc},\n")
                         }
 
-                        for (doc in eventosSnapshot.documents) {
-                            val titol = doc.getString("titol") ?: "Sense títol"
-                            val descripcio = doc.getString("descripció") ?: ""
-                            val dataInici = doc.getTimestamp("data_inici")?.toDate()
-                            val dataFi = doc.getTimestamp("data_fi")?.toDate()
+                        for (doc in tasks) {
+                            val d = doc.data
+                            val due = (d["data_limit"] as? Timestamp)?.toDate() ?: continue
+                            val titol = d["titol"] as? String ?: ""
+                            val desc = d["descripció"] as? String ?: ""
 
-                            if (dataInici != null && dataFi != null) {
-                                builder.append(
-                                    "${titol.replace(",", " ")},${dateFormat.format(dataInici)},${timeFormat.format(dataInici)}," +
-                                            "${dateFormat.format(dataFi)},${timeFormat.format(dataFi)}," +
-                                            "${descripcio.replace(",", " ")},\n"
-                                )
-                            }
+                            csvBuilder.append("${titol},${SimpleDateFormat("MM/dd/yyyy").format(due)},09:00 AM,")
+                            csvBuilder.append("${SimpleDateFormat("MM/dd/yyyy").format(due)},09:30 AM,${desc},\n")
                         }
 
-                        // 🔹 Afegir tasques com a esdeveniments d’un dia
-                        val tasquesSnapshot = withContext(Dispatchers.IO) {
-                            tasquesRef.get().await()
-                        }
-
-                        for (doc in tasquesSnapshot.documents) {
-                            val titol = doc.getString("titol") ?: "Tasca"
-                            val descripcio = doc.getString("descripció") ?: ""
-                            val dataLimit = doc.getTimestamp("data_limit")?.toDate()
-
-                            if (dataLimit != null) {
-                                val startDate = dateFormat.format(dataLimit)
-                                val startTime = "09:00 AM"
-                                val endTime = "09:30 AM"
-
-                                builder.append(
-                                    "${titol.replace(",", " ")} (Tasca),$startDate,$startTime,$startDate,$endTime," +
-                                            "${descripcio.replace(",", " ")},\n"
-                                )
-                            }
-                        }
-
-                        // 🔸 Guardar el CSV
-                        val fileName = "importacio_google_calendar.csv"
+                        // 🔹 3. Guardem el fitxer
+                        val fileName = "calendar_export.csv"
                         val file = File(requireContext().getExternalFilesDir(null), fileName)
+                        file.writeText(csvBuilder.toString())
 
-                        withContext(Dispatchers.IO) {
-                            file.writeText(builder.toString())
-                        }
-
-                        Toast.makeText(requireContext(), "CSV generat a: ${file.absolutePath}", Toast.LENGTH_LONG).show()
+                        // 🔹 4. Demanem el correu electrònic del destinatari
+                        val input = EditText(requireContext())
+                        input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                        AlertDialog.Builder(requireContext())
+                            .setTitle("Enviar CSV")
+                            .setMessage("Introdueix el correu del destinatari:")
+                            .setView(input)
+                            .setPositiveButton("Enviar") { _, _ ->
+                                val emailTo = input.text.toString()
+                                if (emailTo.isNotBlank()) {
+                                    enviarCSVperEmail(emailTo, file)
+                                } else {
+                                    Toast.makeText(requireContext(), "Correu no vàlid", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNegativeButton("Cancel·lar", null)
+                            .show()
 
                     } catch (e: Exception) {
                         Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
@@ -262,6 +256,25 @@ class SettingFragments : Fragment() {
         }
 
         return view
+    }
+
+    private fun enviarCSVperEmail(emailTo: String, file: File) {
+        val uri = FileProvider.getUriForFile(
+            requireContext(),
+            "${requireContext().packageName}.fileprovider",
+            file
+        )
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/csv"
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(emailTo))
+            putExtra(Intent.EXTRA_SUBJECT, "Exportació de calendaris")
+            putExtra(Intent.EXTRA_TEXT, "Adjunt tens el fitxer CSV per importar al teu Google Calendar.")
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        startActivity(Intent.createChooser(intent, "Enviar fitxer CSV"))
     }
     // Función para actualizar el texto de txtStyle dependiendo del tema
 // Función para actualizar el texto de txtStyle dependiendo del tema
@@ -373,6 +386,9 @@ class SettingFragments : Fragment() {
             .setPositiveButton("Aceptar", null)
             .show()
     }
+
+
+
 }
 
 
