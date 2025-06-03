@@ -16,18 +16,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 
 import com.google.firebase.auth.EmailAuthProvider
 import com.institutmarianao.xo_agenda.login.LoginActivity
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-//import androidx.lifecycle.lifecycleScope
-//import com.google.firebase.functions.FirebaseFunctions
-//import com.google.firebase.functions.ktx.functions
+import androidx.lifecycle.lifecycleScope
+import com.google.firebase.functions.ktx.functions
 import kotlinx.coroutines.tasks.await
 
 class SettingFragments : Fragment() {
@@ -163,11 +164,11 @@ class SettingFragments : Fragment() {
         txtPairGoogle.setOnClickListener {
             Log.d("SettingFragments", "txtPairGoogle clicked") // Log para verificar el clic
             // Llama al método de la Activity para iniciar el flujo de Google Calendar
-            //(activity as? MenuActivity)?.startGoogleCalendarSyncFlow()
+            (activity as? MenuActivity)?.startGoogleCalendarSyncFlow()
                 ?: Log.e("SettingFragments", "Hosting Activity is not MenuActivity or is null") // Log de error si no es MenuActivity
         }
 
-        /*txtGenerarImp.setOnClickListener {
+        txtGenerarImp.setOnClickListener {
             val user = FirebaseAuth.getInstance().currentUser
 
             if (user != null) {
@@ -216,7 +217,7 @@ class SettingFragments : Fragment() {
                     }
                 }
             }
-        }*/
+        }
 
 
 

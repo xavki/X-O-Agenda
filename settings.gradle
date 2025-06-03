@@ -1,3 +1,7 @@
+// -----------------------------------------------------------
+// X-O-Agenda/settings.gradle
+// -----------------------------------------------------------
+
 pluginManagement {
     repositories {
         google()
@@ -5,12 +9,15 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
+    // Este modo obliga a no declarar repositorios en build.gradle, SOLO aquí
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
-rootProject.name = "X&O-Agenda"
-include ':app'
+
+rootProject.name = "X-O-Agenda"
+include(":app")

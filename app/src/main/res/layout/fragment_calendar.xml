@@ -72,7 +72,8 @@
         app:mcv_showOtherDates="all"
         app:mcv_headerTextAppearance="@style/CalendarTitle"
         app:mcv_weekDayTextAppearance="@style/CalendarWeekDay"
-        app:mcv_dateTextAppearance="@style/CalendarDate"/>
+        app:mcv_dateTextAppearance="@style/CalendarDate"
+        tools:ignore="MissingClass" />
 
 
 

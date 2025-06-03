@@ -28,7 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.institutmarianao.xo_agenda.alertas.NavigationIntentHandler
 import com.institutmarianao.xo_agenda.alertas.PermisosHandler
 
-/*import kotlinx.coroutines.Dispatchers // Si usas Coroutines (opcional, pero recomendado para tareas en segundo plano)
+import kotlinx.coroutines.Dispatchers // Si usas Coroutines (opcional, pero recomendado para tareas en segundo plano)
 import kotlinx.coroutines.launch // Si usas Coroutines
 import androidx.lifecycle.lifecycleScope // Si usas Coroutines (en Activity)
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -36,7 +36,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException
 import com.google.api.client.http.javanet.NetHttpTransport // Importar transporte HTTP
 import com.google.api.client.json.gson.GsonFactory // Importar fábrica JSON
 import com.google.api.services.calendar.Calendar // Importar el cliente de la API de Calendar
-import com.google.api.services.calendar.CalendarScopes // Importar los scopes de Calendar*/
+import com.google.api.services.calendar.CalendarScopes // Importar los scopes de Calendar
 class MenuActivity : AppCompatActivity() {
 
     companion object {
@@ -203,7 +203,7 @@ class MenuActivity : AppCompatActivity() {
 
     // >> ¡AÑADE ESTA FUNCIÓN A TU CLASE MenuActivity!
     // Método público para que el Fragment Settings dispare el flujo de sincronización
-    /*fun startGoogleCalendarSyncFlow() {
+    fun startGoogleCalendarSyncFlow() {
        Log.d("MenuActivity", "Initiating Google Calendar sync flow...")
 
        // Primero, intenta obtener la última cuenta de Google con la que se autenticó
@@ -307,7 +307,7 @@ class MenuActivity : AppCompatActivity() {
                }
            }
        } // Fin del launch de Coroutine (o el final del bloque del Thread)
-   }*/
+   }
     // << FIN AÑADIR
 }
 

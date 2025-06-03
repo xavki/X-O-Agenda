@@ -1,8 +1,13 @@
+// -----------------------------------------------------------
+// X-O-Agenda/app/build.gradle
+// -----------------------------------------------------------
+
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    // Si usas Firebase, descomenta:
     id 'com.google.gms.google-services'
-
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
@@ -11,46 +16,86 @@ android {
 
     defaultConfig {
         applicationId "com.institutmarianao.xo_agenda"
-        minSdk 24
+        minSdk 21
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {}
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
-
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "17"
     }
+    packagingOptions {
+        resources {
+            excludes += [
+                    "META-INF/INDEX.LIST",
+                    "META-INF/DEPENDENCIES"
+            ]
+
+        }
+    }
+}
+
+
+// NO DECLARA AQUÍ repositories { … }
+// Porque ese rol ya lo gestiona settings.gradle
+
+dependencies {
+    // 1) Google Sign-In
+    implementation "com.google.android.gms:play-services-auth:20.6.0"
+
+    // 2) Google API Client para Calendar
+    implementation "com.google.api-client:google-api-client-android:1.34.1"
+    implementation "com.google.api-client:google-api-client-gson:1.34.1"
+
+    // 3) Firebase Auth + Firestore + Functions mediante BoM
+    implementation platform("com.google.firebase:firebase-bom:31.5.0")
+    implementation "com.google.firebase:firebase-auth-ktx"
+    implementation "com.google.firebase:firebase-firestore-ktx"
+    implementation "com.google.firebase:firebase-functions-ktx"
+
+    // 4) Coroutines Android
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    implementation "com.google.apis:google-api-services-calendar:v3-rev20250404-2.0.0"
+
+    // 5) AndroidX / Material / Fragment
+    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.appcompat:appcompat:1.5.1"
+    implementation "androidx.activity:activity-ktx:1.6.1"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.5.1"
+    implementation "androidx.drawerlayout:drawerlayout:1.1.1"
+    implementation "com.google.android.material:material:1.7.0"
+    implementation "androidx.fragment:fragment-ktx:1.5.2"
+
+    // 6) Google API Client genérico (opcional)
+    implementation "com.google.api-client:google-api-client:1.34.1"
+
+    // 7) Material CalendarView
+    implementation "com.prolificinteractive:material-calendarview:1.4.3"
+
+    // 8) Glide para carga de imágenes
+    implementation "com.github.bumptech.glide:glide:4.15.1"
+    kapt "com.github.bumptech.glide:compiler:4.15.1"
+    // 1) gRPC Core
+    implementation "io.grpc:grpc-core:1.68.0"
+    // 2) gRPC Stub
+    implementation "io.grpc:grpc-stub:1.68.0"
+    // 3) gRPC Protobuf Lite
+    implementation "io.grpc:grpc-protobuf-lite:1.68.0"
+    // 4) gRPC OkHttp (para canales HTTP/2 sobre OkHttp en Android)
+    implementation "io.grpc:grpc-okhttp:1.68.0"
 
 
 }
 
-dependencies {
-    implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.5.0'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
-    implementation 'com.google.firebase:firebase-auth:21.0.1'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.4.0'
-    implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    implementation 'com.prolificinteractive:material-calendarview:1.4.3'
-    implementation 'com.github.bumptech.glide:glide:4.15.1' // O la última versión estable
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.1' // Misma versión que la anterior
-    implementation "androidx.legacy:legacy-support-v4:1.0.0"
-    }
