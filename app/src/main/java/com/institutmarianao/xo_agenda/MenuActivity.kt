@@ -23,20 +23,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions // Importar Go
 import com.google.android.gms.common.api.ApiException // Importar ApiException
 import com.google.android.gms.common.api.Scope // Importar Scope
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount // Importar GoogleSignInAccount
-import com.google.api.client.googleapis.json.GoogleJsonResponseException
-import com.google.api.client.http.javanet.NetHttpTransport // Importar transporte HTTP
-import com.google.api.client.json.gson.GsonFactory // Importar fábrica JSON
-import com.google.api.services.calendar.Calendar // Importar el cliente de la API de Calendar
-import com.google.api.services.calendar.CalendarScopes // Importar los scopes de Calendar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.institutmarianao.xo_agenda.alertas.NavigationIntentHandler
 import com.institutmarianao.xo_agenda.alertas.PermisosHandler
-import kotlinx.coroutines.Dispatchers // Si usas Coroutines (opcional, pero recomendado para tareas en segundo plano)
+
+/*import kotlinx.coroutines.Dispatchers // Si usas Coroutines (opcional, pero recomendado para tareas en segundo plano)
 import kotlinx.coroutines.launch // Si usas Coroutines
 import androidx.lifecycle.lifecycleScope // Si usas Coroutines (en Activity)
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-
+import com.google.api.client.googleapis.json.GoogleJsonResponseException
+import com.google.api.client.http.javanet.NetHttpTransport // Importar transporte HTTP
+import com.google.api.client.json.gson.GsonFactory // Importar fábrica JSON
+import com.google.api.services.calendar.Calendar // Importar el cliente de la API de Calendar
+import com.google.api.services.calendar.CalendarScopes // Importar los scopes de Calendar*/
 class MenuActivity : AppCompatActivity() {
 
     companion object {
@@ -83,7 +83,7 @@ class MenuActivity : AppCompatActivity() {
                     if (account != null) {
                         Log.d("MenuActivity", "GoogleSignInAccount received for Calendar sync.")
                         // >> ¡Aquí es donde llamas a la función que falta!
-                        startCalendarSyncWithGoogleAccount(account) // <-- ¡Esta es la función que vamos a añadir (placeholder por ahora)!
+                        // startCalendarSyncWithGoogleAccount(account) // <-- ¡Esta es la función que vamos a añadir (placeholder por ahora)!
 
                     } else {
                         Log.w("MenuActivity", "GoogleSignInAccount is null after successful result for Calendar sync.")
@@ -203,111 +203,111 @@ class MenuActivity : AppCompatActivity() {
 
     // >> ¡AÑADE ESTA FUNCIÓN A TU CLASE MenuActivity!
     // Método público para que el Fragment Settings dispare el flujo de sincronización
-    fun startGoogleCalendarSyncFlow() {
-        Log.d("MenuActivity", "Initiating Google Calendar sync flow...")
+    /*fun startGoogleCalendarSyncFlow() {
+       Log.d("MenuActivity", "Initiating Google Calendar sync flow...")
 
-        // Primero, intenta obtener la última cuenta de Google con la que se autenticó
-        val lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(this)
+       // Primero, intenta obtener la última cuenta de Google con la que se autenticó
+       val lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(this)
 
-        // Verifica si la cuenta existe Y si ya tiene el scope de Google Calendar concedido
-        // Es importante verificar el scope porque podrían haberse logueado con Google
-        // pero sin conceder los permisos de Calendar previamente.
-        val calendarScope = Scope("https://www.googleapis.com/auth/calendar.events")
-        val hasCalendarScope = lastSignedInAccount != null && lastSignedInAccount.grantedScopes.contains(calendarScope)
-
-
-        if (hasCalendarScope) {
-            Log.d("MenuActivity", "Google account already signed in with Calendar scope. Proceeding to sync.")
-            // Si ya están logueados con el scope correcto, vamos directo a la lógica de sync
-            // El 'lastSignedInAccount' no será nulo si 'hasCalendarScope' es true
-            lastSignedInAccount?.let { account ->
-                startCalendarSyncWithGoogleAccount(account) // Llama a la función de sincronización real
-            }
-
-        } else {
-            Log.d("MenuActivity", "Google account not signed in or missing Calendar scope, initiating sign-in flow.")
-            // Si no están logueados o les falta el scope, iniciamos el flujo de Google Sign-In
-            // con las opciones que incluyen el scope de Calendar (configurado en onCreate)
-            val signInIntent = googleCalendarSignInClient.signInIntent
-            googleCalendarSignInLauncher.launch(signInIntent) // Lanza el Activity Result Launcher
-        }
-    }
-
-    private fun startCalendarSyncWithGoogleAccount(account: GoogleSignInAccount) {
-        Log.d("MenuActivity", "startCalendarSyncWithGoogleAccount called for: ${account.email}")
-        Toast.makeText(this, "Cuenta de Google vinculada. Preparando sincronización...", Toast.LENGTH_LONG).show()
-
-        // Es fundamental realizar operaciones de red/API en un hilo de fondo.
-        // Puedes usar un Thread simple (como antes) o Coroutines si ya las usas.
-        // Ejemplo con Coroutines (recomendado si tu proyecto las usa):
-
-        lifecycleScope.launch(Dispatchers.IO) { // Ejecuta en el hilo de I/O
-            try {
-
-                // Construir la credencial usando la cuenta de GoogleSignInAccount
-                val credential = GoogleAccountCredential.usingOAuth2(
-                    this@MenuActivity, // Contexto de la Activity
-                    listOf(CalendarScopes.CALENDAR_EVENTS) // Lista de scopes.
-                )
-                credential.selectedAccount = account.account // Establecer la cuenta seleccionada
-
-                // >> ¡ELIMINA O COMENTA LA LÍNEA QUE TE DA PROBLEMAS AQUÍ!
-                // val accessToken = account.accessToken // <-- Esta línea NO es necesaria aquí
-
-                // 3. Construir el objeto Calendar (el cliente de la API)
-                val calendarService = Calendar.Builder(
-                    NetHttpTransport(), // Transporte HTTP
-                    GsonFactory(),      // Fábrica JSON
-                    credential          // <-- Usamos la CREDENCIAL, no el raw token
-                )
-                    .setApplicationName("Calendari-ToDo List") // Establece el nombre de tu aplicación
-                    .build()
-
-                Log.d("MenuActivity", "Google Calendar service built successfully.")
-
-                // >> ¡Aquí es donde comienza la lógica de sincronización real! <<
-
-                // 4. Ejemplo: Leer eventos del calendario principal (esto DEBE ir dentro del hilo de fondo)
-                try {
-                    // Obtener la lista de calendarios del usuario
-                    val calendars = calendarService.calendarList().list().execute()
-                    Log.d("MenuActivity", "Fetched ${calendars.items.size} calendars.")
-
-                    val primaryCalendar = calendars.items.firstOrNull { it.primary == true }
-                    if (primaryCalendar != null) {
-                        Log.d("MenuActivity", "Primary Calendar ID: ${primaryCalendar.id}")
-
-                        // TODO: Implementar la lógica real de lectura de eventos del Calendario de Google,
-                        // lectura de datos de Firestore, comparación y escritura/actualización en ambos lados.
-                        // Esto implicará más llamadas a calendarService.events().list(), insert(), update(), delete().
-
-                        runOnUiThread { // Vuelve al hilo principal para actualizar la UI
-                            Toast.makeText(this@MenuActivity, "Sincronización iniciada (lógica pendiente)...", Toast.LENGTH_SHORT).show()
-                        }
-
-                    } else {
-                        Log.w("MenuActivity", "Primary calendar not found for user.")
-                        runOnUiThread { Toast.makeText(this@MenuActivity, "No se encontró un calendario principal de Google.", Toast.LENGTH_SHORT).show() }
-                    }
+       // Verifica si la cuenta existe Y si ya tiene el scope de Google Calendar concedido
+       // Es importante verificar el scope porque podrían haberse logueado con Google
+       // pero sin conceder los permisos de Calendar previamente.
+       val calendarScope = Scope("https://www.googleapis.com/auth/calendar.events")
+       val hasCalendarScope = lastSignedInAccount != null && lastSignedInAccount.grantedScopes.contains(calendarScope)
 
 
-                } catch (apiError: GoogleJsonResponseException) { // Captura errores específicos de la API
-                    Log.e("MenuActivity", "Google API Error during calendar operation: ${apiError.statusCode}", apiError)
-                    runOnUiThread { Toast.makeText(this@MenuActivity, "Error de API de Google (${apiError.statusCode}): ${apiError.details?.message ?: apiError.statusMessage}", Toast.LENGTH_LONG).show() }
-                } catch (e: Exception) { // Captura otros errores
-                    Log.e("MenuActivity", "Error during Google Calendar API interaction", e)
-                    runOnUiThread { Toast.makeText(this@MenuActivity, "Error general de sincronización: ${e.message}", Toast.LENGTH_LONG).show() }
-                }
+       if (hasCalendarScope) {
+           Log.d("MenuActivity", "Google account already signed in with Calendar scope. Proceeding to sync.")
+           // Si ya están logueados con el scope correcto, vamos directo a la lógica de sync
+           // El 'lastSignedInAccount' no será nulo si 'hasCalendarScope' es true
+           lastSignedInAccount?.let { account ->
+               startCalendarSyncWithGoogleAccount(account) // Llama a la función de sincronización real
+           }
+
+       } else {
+           Log.d("MenuActivity", "Google account not signed in or missing Calendar scope, initiating sign-in flow.")
+           // Si no están logueados o les falta el scope, iniciamos el flujo de Google Sign-In
+           // con las opciones que incluyen el scope de Calendar (configurado en onCreate)
+           val signInIntent = googleCalendarSignInClient.signInIntent
+           googleCalendarSignInLauncher.launch(signInIntent) // Lanza el Activity Result Launcher
+       }
+   }
+
+   private fun startCalendarSyncWithGoogleAccount(account: GoogleSignInAccount) {
+       Log.d("MenuActivity", "startCalendarSyncWithGoogleAccount called for: ${account.email}")
+       Toast.makeText(this, "Cuenta de Google vinculada. Preparando sincronización...", Toast.LENGTH_LONG).show()
+
+       // Es fundamental realizar operaciones de red/API en un hilo de fondo.
+       // Puedes usar un Thread simple (como antes) o Coroutines si ya las usas.
+       // Ejemplo con Coroutines (recomendado si tu proyecto las usa):
+
+       lifecycleScope.launch(Dispatchers.IO) { // Ejecuta en el hilo de I/O
+           try {
+
+               // Construir la credencial usando la cuenta de GoogleSignInAccount
+               val credential = GoogleAccountCredential.usingOAuth2(
+                   this@MenuActivity, // Contexto de la Activity
+                   listOf(CalendarScopes.CALENDAR_EVENTS) // Lista de scopes.
+               )
+               credential.selectedAccount = account.account // Establecer la cuenta seleccionada
+
+               // >> ¡ELIMINA O COMENTA LA LÍNEA QUE TE DA PROBLEMAS AQUÍ!
+               // val accessToken = account.accessToken // <-- Esta línea NO es necesaria aquí
+
+               // 3. Construir el objeto Calendar (el cliente de la API)
+               val calendarService = Calendar.Builder(
+                   NetHttpTransport(), // Transporte HTTP
+                   GsonFactory(),      // Fábrica JSON
+                   credential          // <-- Usamos la CREDENCIAL, no el raw token
+               )
+                   .setApplicationName("Calendari-ToDo List") // Establece el nombre de tu aplicación
+                   .build()
+
+               Log.d("MenuActivity", "Google Calendar service built successfully.")
+
+               // >> ¡Aquí es donde comienza la lógica de sincronización real! <<
+
+               // 4. Ejemplo: Leer eventos del calendario principal (esto DEBE ir dentro del hilo de fondo)
+               try {
+                   // Obtener la lista de calendarios del usuario
+                   val calendars = calendarService.calendarList().list().execute()
+                   Log.d("MenuActivity", "Fetched ${calendars.items.size} calendars.")
+
+                   val primaryCalendar = calendars.items.firstOrNull { it.primary == true }
+                   if (primaryCalendar != null) {
+                       Log.d("MenuActivity", "Primary Calendar ID: ${primaryCalendar.id}")
+
+                       // TODO: Implementar la lógica real de lectura de eventos del Calendario de Google,
+                       // lectura de datos de Firestore, comparación y escritura/actualización en ambos lados.
+                       // Esto implicará más llamadas a calendarService.events().list(), insert(), update(), delete().
+
+                       runOnUiThread { // Vuelve al hilo principal para actualizar la UI
+                           Toast.makeText(this@MenuActivity, "Sincronización iniciada (lógica pendiente)...", Toast.LENGTH_SHORT).show()
+                       }
+
+                   } else {
+                       Log.w("MenuActivity", "Primary calendar not found for user.")
+                       runOnUiThread { Toast.makeText(this@MenuActivity, "No se encontró un calendario principal de Google.", Toast.LENGTH_SHORT).show() }
+                   }
 
 
-            } catch (e: Exception) { // Errores al construir la credencial o el servicio
-                Log.e("MenuActivity", "Error building Google Account Credential or Calendar service", e)
-                runOnUiThread {
-                    Toast.makeText(this@MenuActivity, "Error interno al preparar sincronización.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } // Fin del launch de Coroutine (o el final del bloque del Thread)
-    }
+               } catch (apiError: GoogleJsonResponseException) { // Captura errores específicos de la API
+                   Log.e("MenuActivity", "Google API Error during calendar operation: ${apiError.statusCode}", apiError)
+                   runOnUiThread { Toast.makeText(this@MenuActivity, "Error de API de Google (${apiError.statusCode}): ${apiError.details?.message ?: apiError.statusMessage}", Toast.LENGTH_LONG).show() }
+               } catch (e: Exception) { // Captura otros errores
+                   Log.e("MenuActivity", "Error during Google Calendar API interaction", e)
+                   runOnUiThread { Toast.makeText(this@MenuActivity, "Error general de sincronización: ${e.message}", Toast.LENGTH_LONG).show() }
+               }
+
+
+           } catch (e: Exception) { // Errores al construir la credencial o el servicio
+               Log.e("MenuActivity", "Error building Google Account Credential or Calendar service", e)
+               runOnUiThread {
+                   Toast.makeText(this@MenuActivity, "Error interno al preparar sincronización.", Toast.LENGTH_SHORT).show()
+               }
+           }
+       } // Fin del launch de Coroutine (o el final del bloque del Thread)
+   }*/
     // << FIN AÑADIR
 }
 
