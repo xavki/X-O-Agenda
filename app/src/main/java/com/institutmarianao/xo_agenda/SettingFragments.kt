@@ -72,7 +72,6 @@ class SettingFragments : Fragment() {
         }
 
         // CAMBIAR TEMA
-        // CAMBIAR TEMA
         txtStyle.setOnClickListener {
             val builder = AlertDialog.Builder(requireContext())
             builder.setTitle("Selecciona un tema")
@@ -80,7 +79,7 @@ class SettingFragments : Fragment() {
             // Opciones de temas
             val themes = arrayOf("Claro", "Oscuro")
 
-            // Detectar el modo actual
+            // Detectar el tema actual
             val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
 
             val defaultSelection = when (currentNightMode) {
@@ -172,6 +171,7 @@ class SettingFragments : Fragment() {
                 ?: Log.e("SettingFragments", "Hosting Activity is not MenuActivity or is null") // Log de error si no es MenuActivity
         }
 
+        // GENERAR ARCHIVO IMPORTABLE Y ENVIAR POR CORREO
         txtGenerarImp.setOnClickListener {
             val user = FirebaseAuth.getInstance().currentUser
 
@@ -181,11 +181,11 @@ class SettingFragments : Fragment() {
 
                 lifecycleScope.launch {
                     try {
-                        // 🔹 1. Llegim esdeveniments i tasques
+                        // Lee los datos almacenados 
                         val events = firestore.collection("usuarios/$userId/esdeveniments").get().await()
                         val tasks = firestore.collection("usuarios/$userId/tasques").get().await()
 
-                        // 🔹 2. Preparem el CSV
+                        // Preparación de archivo CSV
                         val csvBuilder = StringBuilder()
                         csvBuilder.append("Subject,Start Date,Start Time,End Date,End Time,Description,Location\n")
 
@@ -210,12 +210,12 @@ class SettingFragments : Fragment() {
                             csvBuilder.append("${SimpleDateFormat("MM/dd/yyyy").format(due)},09:30 AM,${desc},\n")
                         }
 
-                        // 🔹 3. Guardem el fitxer
+                        // Guardar fichero CSV
                         val fileName = "calendar_export.csv"
                         val file = File(requireContext().getExternalFilesDir(null), fileName)
                         file.writeText(csvBuilder.toString())
 
-                        // 🔹 4. Demanem el correu electrònic del destinatari
+                        // Solicitar direccion de correo del destinatario
                         val input = EditText(requireContext())
                         input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
                         AlertDialog.Builder(requireContext())
@@ -242,8 +242,7 @@ class SettingFragments : Fragment() {
 
 
 
-
-        // Eliminar cuenta: primer diálogo
+        // ELIMINAR CUENTA DEL USUARIO
         txtDeleteAcc.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("¿Estás seguro de que quieres eliminar tu cuenta?")
@@ -276,8 +275,8 @@ class SettingFragments : Fragment() {
 
         startActivity(Intent.createChooser(intent, "Enviar fitxer CSV"))
     }
-    // Función para actualizar el texto de txtStyle dependiendo del tema
-// Función para actualizar el texto de txtStyle dependiendo del tema
+
+    // Función para actualizar el texto dependiendo del tema actual.
     private fun updateThemeText() {
         val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
@@ -315,6 +314,8 @@ class SettingFragments : Fragment() {
         val sharedPreferences = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE)
         return sharedPreferences.getString("language", "es") ?: "es"  // Por defecto, Español
     }
+
+    // Función para configrmar el borrado de cuenta.
     private fun promptPasswordAndConfirmDelete() {
         val currentEmail = auth.currentUser?.email ?: return
         val input = EditText(requireContext()).apply {
@@ -376,8 +377,6 @@ class SettingFragments : Fragment() {
             .addOnFailureListener { e -> showErrorDialog("Reautenticación fallida: ${e.message}") }
     }
 
-
-
     // Mostrar un mensaje de error si la eliminación falla
     private fun showErrorDialog(message: String) {
         val builder = AlertDialog.Builder(requireContext())
@@ -386,9 +385,4 @@ class SettingFragments : Fragment() {
             .setPositiveButton("Aceptar", null)
             .show()
     }
-
-
-
 }
-
-
